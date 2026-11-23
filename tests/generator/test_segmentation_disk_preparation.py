@@ -6,11 +6,11 @@ import tracemalloc
 import numpy as np
 import pytest
 
-from mlaas_data_generator.data.image_store import (
+from flaas_data_generator.data.image_store import (
     DiskArraySequence, DiskImageArray, close_image_stores,
 )
-from mlaas_data_generator.data.preprocessors import hf_image
-from mlaas_data_generator.shared_parent import prepared_data_hash
+from flaas_data_generator.data.preprocessors import hf_image
+from flaas_data_generator.shared_parent import prepared_data_hash
 
 
 class Rows:
@@ -52,7 +52,7 @@ def prepare(rows, **kwargs):
 
 @pytest.fixture(autouse=True)
 def cache_directory(tmp_path, monkeypatch):
-    monkeypatch.setenv("MLAAS_IMAGE_CACHE_DIR", str(tmp_path))
+    monkeypatch.setenv("FLAAS_IMAGE_CACHE_DIR", str(tmp_path))
 
 
 @pytest.mark.parametrize("policy", ["skip", "report", "raise"])
@@ -113,14 +113,14 @@ def test_full_preprocessor_peak_is_bounded_including_class_inference(monkeypatch
 
 def test_selections_stay_lazy_and_training_batches_match(monkeypatch):
     import torch
-    from mlaas_data_generator.data.fedavg_partition import _take_rows
-    from mlaas_data_generator.data.splitters import _take, split_data
-    from mlaas_data_generator.clients.legacy import _take_rows as legacy_take
-    from mlaas_data_generator.models.adapters.hf_core import HFCore
-    from mlaas_data_generator.models.adapters.hf_task import ImageSegmentationSpec
-    from mlaas_data_generator.tasks.contracts import resolve_task_contract, target_fingerprints
-    from mlaas_data_generator.services.perturbation import _get_sample
-    from mlaas_data_generator.data.distributions import get_data_distribution
+    from flaas_data_generator.data.fedavg_partition import _take_rows
+    from flaas_data_generator.data.splitters import _take, split_data
+    from flaas_data_generator.clients.legacy import _take_rows as legacy_take
+    from flaas_data_generator.models.adapters.hf_core import HFCore
+    from flaas_data_generator.models.adapters.hf_task import ImageSegmentationSpec
+    from flaas_data_generator.tasks.contracts import resolve_task_contract, target_fingerprints
+    from flaas_data_generator.services.perturbation import _get_sample
+    from flaas_data_generator.data.distributions import get_data_distribution
 
     monkeypatch.setattr(hf_image, "IMAGE_MEMORY_LIMIT_BYTES", 1)
     x, y, _ = prepare(Rows())

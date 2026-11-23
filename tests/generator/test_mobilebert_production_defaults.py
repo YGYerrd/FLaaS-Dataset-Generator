@@ -4,12 +4,12 @@ import pandas as pd
 import pytest
 import torch
 
-from mlaas_data_generator.clients import recipes, training
-from mlaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
-from mlaas_data_generator.cli.manifest.preparation import contract_config, group_key
-from mlaas_data_generator.cli.run_manifest import _resolve_row
-from mlaas_data_generator.mobilebert_policy import apply_mobilebert_generation_defaults
-from mlaas_data_generator.models.adapters.mobilebert_stability import NormalizedLinear
+from flaas_data_generator.clients import recipes, training
+from flaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
+from flaas_data_generator.cli.manifest.preparation import contract_config, group_key
+from flaas_data_generator.cli.run_manifest import _resolve_row
+from flaas_data_generator.mobilebert_policy import apply_mobilebert_generation_defaults
+from flaas_data_generator.models.adapters.mobilebert_stability import NormalizedLinear
 
 
 def test_generation_and_csv_resolution_preserve_normalization_clipping_and_fp32(tmp_path):
@@ -21,7 +21,7 @@ def test_generation_and_csv_resolution_preserve_normalization_clipping_and_fp32(
     assert set(rows.max_grad_norm) == {1.0}
     assert not rows.mixed_precision.any() and set(rows.precision_type) == {"fp32"}
     path = tmp_path / "manifest.csv"
-    from mlaas_data_generator.cli.manifest.review import save_review_manifest, expand_review_manifest
+    from flaas_data_generator.cli.manifest.review import save_review_manifest, expand_review_manifest
     save_review_manifest(rows, path)
     expanded, defaults = expand_review_manifest(pd.read_csv(path, dtype=str), path)
     for _, raw in expanded.iterrows():
@@ -61,13 +61,13 @@ def test_tagged_parent_recipes_keep_runtime_settings_and_untagged_replays_keep_i
 
 def test_mobilebert_training_and_inference_reload_preserve_logits_and_identity(tmp_path, monkeypatch, request):
     from transformers import MobileBertConfig, MobileBertForSequenceClassification
-    from mlaas_data_generator.models.adapters import hf_core
-    from mlaas_data_generator.models.adapters.hf_adapter import (
+    from flaas_data_generator.models.adapters import hf_core
+    from flaas_data_generator.models.adapters.hf_adapter import (
         TransformersTextFineTuneAdapter, TransformersTextClassifierAdapter,
     )
-    from mlaas_data_generator.provenance import model_identity
-    from mlaas_data_generator.checkpoint_store import capture_model_tensor_state, restore_model_tensor_state
-    from mlaas_data_generator.services.runner import _apply_runtime_knobs_to_model
+    from flaas_data_generator.provenance import model_identity
+    from flaas_data_generator.checkpoint_store import capture_model_tensor_state, restore_model_tensor_state
+    from flaas_data_generator.services.runner import _apply_runtime_knobs_to_model
     previous_threads = torch.get_num_threads()
     request.addfinalizer(lambda: torch.set_num_threads(previous_threads))
     torch.set_num_threads(1)

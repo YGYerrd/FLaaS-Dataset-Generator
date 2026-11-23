@@ -19,7 +19,7 @@ readable; active FedAvg generation commands are retired.
 
 ```powershell
 $Run = "outputs/shared_parent"
-function Invoke-Generator { python -m mlaas_data_generator.cli.main @args }
+function Invoke-Generator { python -m flaas_data_generator.cli.main @args }
 Invoke-Generator select-parent-configs `
     --history-db outputs/services.db `
     --output "$Run/parent_selection.json" `
@@ -112,12 +112,12 @@ example order and prepared-data hashes have the same semantics on both paths.
 Detection, segmentation and multimodal preprocessing retain their existing paths.
 
 The temporary files use the system temporary directory by default. To put them
-on a larger drive, create a directory and set `MLAAS_IMAGE_CACHE_DIR` in the same
+on a larger drive, create a directory and set `FLAAS_IMAGE_CACHE_DIR` in the same
 terminal before launching the generator, for example:
 
 ```powershell
-New-Item -ItemType Directory -Force D:/mlaas-image-cache
-$env:MLAAS_IMAGE_CACHE_DIR = "D:/mlaas-image-cache"
+New-Item -ItemType Directory -Force D:/flaas-image-cache
+$env:FLAAS_IMAGE_CACHE_DIR = "D:/flaas-image-cache"
 ```
 
 Allow space for the expanded training and evaluation pools (about 55.7 GiB for
@@ -141,7 +141,7 @@ with the same selection and database reuses completed parents; incomplete parent
 restart. The storage implementation does not change parent checkpoint identities.
 
 The output records successful parents and failures separately. `reservation_ref`
-points to the exact audit source file accepted by `mlaas-compose validate`.
+points to the exact audit source file accepted by `flaas-compose validate`.
 
 ### Continue directly into client training
 
@@ -198,9 +198,9 @@ checkpoints available for retry. Results are written beside the manifest as
 ## Freeze and execute clients
 
 ```powershell
-python -m mlaas_data_generator.cli.main cohort-manifest --parents outputs/shared_parent/parents.json --file outputs/shared_parent/clients.csv
-python -m mlaas_data_generator.cli.main run-manifest --file outputs/shared_parent/clients.csv --dry-run
-python -m mlaas_data_generator.cli.main run-manifest --file outputs/shared_parent/clients.csv --db outputs/cohort_services.db
+python -m flaas_data_generator.cli.main cohort-manifest --parents outputs/shared_parent/parents.json --file outputs/shared_parent/clients.csv
+python -m flaas_data_generator.cli.main run-manifest --file outputs/shared_parent/clients.csv --dry-run
+python -m flaas_data_generator.cli.main run-manifest --file outputs/shared_parent/clients.csv --db outputs/cohort_services.db
 ```
 
 Defaults are 100 clients per parent, seed 42, heterogeneity intensity 0.5, and
@@ -285,7 +285,7 @@ run; restoring the original artifact makes it eligible again on the next resume.
 ## Post-generation behavioural diversity
 
 ```powershell
-python -m mlaas_data_generator.cli.main cohort-diagnostics --db outputs/cohort_services.db --cohort-id COHORT_ID --output-dir outputs/shared_parent/diagnostics
+python -m flaas_data_generator.cli.main cohort-diagnostics --db outputs/cohort_services.db --cohort-id COHORT_ID --output-dir outputs/shared_parent/diagnostics
 ```
 
 Replace `COHORT_ID` with the `cohort_id` value in the client manifest.
@@ -330,8 +330,8 @@ audit set or resolve unknown historical evaluation exposure.
 ## Composition and evidence
 
 ```powershell
-python -m mlaas_composition generate-requests --db outputs/cohort_services.db --output outputs/shared_parent/requests.json --compatibility-mode strict --seed 42
-python -m mlaas_composition evaluate --db outputs/cohort_services.db --requests-file outputs/shared_parent/requests.json --output-dir outputs/shared_parent/composition --search-budget 100
+python -m flaas_composition generate-requests --db outputs/cohort_services.db --output outputs/shared_parent/requests.json --compatibility-mode strict --seed 42
+python -m flaas_composition evaluate --db outputs/cohort_services.db --requests-file outputs/shared_parent/requests.json --output-dir outputs/shared_parent/composition --search-budget 100
 ```
 
 New strict requests use schema v3: `cohort_id`, `parent_state_hash`, and

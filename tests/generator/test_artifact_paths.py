@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from mlaas_data_generator.artifact_paths import (
+from flaas_data_generator.artifact_paths import (
     artifact_path_scope, current_artifact_prefixes, load_artifact_path_map, resolve_artifact_path)
 
 

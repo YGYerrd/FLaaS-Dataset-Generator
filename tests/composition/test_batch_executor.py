@@ -9,18 +9,18 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_composition import run_manifest as batch
-from mlaas_composition.cli import main
-from mlaas_composition.manifest import _digest
-from mlaas_composition.recipe_execution import execute_composition
-from mlaas_composition.storage import CompositionWriter
-from mlaas_composition.validation import ServicePrediction
-from mlaas_data_generator.checkpoint_store import capture_model_tensor_state
-from mlaas_data_generator.cli.manifest import preparation
-from mlaas_data_generator.client_reconstruction import persist_recipe
-from mlaas_data_generator.data import master_loader
-from mlaas_data_generator.provenance import sha256_json
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_composition import run_manifest as batch
+from flaas_composition.cli import main
+from flaas_composition.manifest import _digest
+from flaas_composition.recipe_execution import execute_composition
+from flaas_composition.storage import CompositionWriter
+from flaas_composition.validation import ServicePrediction
+from flaas_data_generator.checkpoint_store import capture_model_tensor_state
+from flaas_data_generator.cli.manifest import preparation
+from flaas_data_generator.client_reconstruction import persist_recipe
+from flaas_data_generator.data import master_loader
+from flaas_data_generator.provenance import sha256_json
+from flaas_data_generator.storage.writer import make_writer
 
 
 class ToyModel:
@@ -90,7 +90,7 @@ def source(tmp_path, monkeypatch):
     @contextmanager
     def materialize(db, sid, *, device, capture_client_losses=False):
         calls.append(sid)
-        from mlaas_data_generator.client_losses import client_loss_evidence
+        from flaas_data_generator.client_losses import client_loss_evidence
         observations = {"sample_count": {"a": 2, "b": 6, "c": 4}[sid],
                         "mean_loss": 0.5, "squared_sample_loss_sum": 3.0,
                         "loss_definition": "test_loss", "measurement_wall_s": 0.0}
@@ -107,9 +107,9 @@ def source(tmp_path, monkeypatch):
         outputs = np.array([[0.9, 0.1] if labels[sid] == 0 else [0.1, 0.9] for sid in plan.audit_ids])
         return ServicePrediction(runtime_id, plan.audit_ids, outputs, 0.2, plan.label_hash, "classification")
 
-    monkeypatch.setattr("mlaas_data_generator.client_reconstruction.materialize_service", materialize)
-    monkeypatch.setattr("mlaas_composition.regeneration.execute_raw_family_state", predict)
-    monkeypatch.setattr("mlaas_data_generator.cli.run_manifest._clear_cuda_runtime_state", lambda: None)
+    monkeypatch.setattr("flaas_data_generator.client_reconstruction.materialize_service", materialize)
+    monkeypatch.setattr("flaas_composition.regeneration.execute_raw_family_state", predict)
+    monkeypatch.setattr("flaas_data_generator.cli.run_manifest._clear_cuda_runtime_state", lambda: None)
     return SimpleNamespace(db=db, doc=doc, initial=initial, calls=calls, aggregate_values=aggregate_values)
 
 
@@ -171,7 +171,7 @@ def test_dry_run_has_no_tensor_reads_or_output(source, tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("explicit", [False, True])
 def test_relocated_artifacts_preflight_execute_and_preserve_evidence(source, tmp_path, monkeypatch, explicit):
-    from mlaas_data_generator.artifact_paths import current_artifact_prefixes
+    from flaas_data_generator.artifact_paths import current_artifact_prefixes
     original = Path(source.doc["store_root"])
     relocated = tmp_path / "moved artifacts"
     original.rename(relocated)
@@ -202,7 +202,7 @@ def test_relocated_artifacts_preflight_execute_and_preserve_evidence(source, tmp
 
 
 def test_gpu_worker_receives_artifact_mapping(tmp_path, monkeypatch):
-    from mlaas_data_generator.artifact_paths import artifact_path_scope, current_artifact_prefixes
+    from flaas_data_generator.artifact_paths import artifact_path_scope, current_artifact_prefixes
     prefixes = (("/old/outputs", str(tmp_path)),)
     spawned = {}
 
@@ -233,7 +233,7 @@ def test_existing_execution_default_still_uses_retained_checkpoints(source, monk
     def retained(root, sid):
         reads.append(sid)
         return capture_model_tensor_state(ToyModel(2))
-    monkeypatch.setattr("mlaas_data_generator.checkpoint_store.reconstruct_service_state", retained)
+    monkeypatch.setattr("flaas_data_generator.checkpoint_store.reconstruct_service_state", retained)
     result = execute_composition(source.db, members, plan)
     assert reads == ["a"] and source.calls == ["b"]
     assert result.aggregation_provenance["materialization"][0]["materialization_method"] == "retained_checkpoint"
@@ -259,7 +259,7 @@ def test_invalid_manifests_are_rejected(tmp_path, mutation):
 
 def test_member_failure_stops_aggregate_continues_and_retries(source, tmp_path, monkeypatch):
     path = manifest(tmp_path / "manifest.csv", [entry(source.doc["family_id"], "a", "b"), entry(source.doc["family_id"], "a", "c")])
-    from mlaas_data_generator import client_reconstruction
+    from flaas_data_generator import client_reconstruction
     original = client_reconstruction.materialize_service
 
     @contextmanager
@@ -297,7 +297,7 @@ def test_changed_recipe_creates_new_run_and_mutation_after_preflight_fails(sourc
         recipe["observed_metrics"]["accuracy"]["value"] = 0.6
         recipe["recipe_hash"] = sha256_json({k: v for k, v in recipe.items() if k != "recipe_hash"})
         Path(ref).write_text(json.dumps(recipe))
-        from mlaas_data_generator.provenance import sha256_file
+        from flaas_data_generator.provenance import sha256_file
         conn.execute("UPDATE service_generation_provenance SET client_recipe_hash=? WHERE service_id='a'", (sha256_file(ref),))
     result = batch.execute_job(source.db, job, {sid: sha256_json(s) for sid, s in snapshots.items()}, device="cpu")
     assert result["status"] == "failed" and "changed after" in result["error_message"]
@@ -361,7 +361,7 @@ def test_gpu_visibility_respects_inherited_noncontiguous_masks(monkeypatch):
 
 def test_interrupted_composition_restarts_every_member(source, tmp_path, monkeypatch):
     path = manifest(tmp_path / "manifest.csv", [entry(source.doc["family_id"], "a", "b")])
-    from mlaas_data_generator import client_reconstruction
+    from flaas_data_generator import client_reconstruction
     original = client_reconstruction.materialize_service
     @contextmanager
     def interrupted(db, sid, **kwargs):
@@ -396,7 +396,7 @@ def test_completion_rolls_back_when_metric_write_fails(source, tmp_path, monkeyp
 
 
 def test_dry_run_detects_missing_base_and_corrupted_recipe(source, tmp_path):
-    from mlaas_data_generator.checkpoint_store import _identity_manifest_path
+    from flaas_data_generator.checkpoint_store import _identity_manifest_path
     base = _identity_manifest_path(Path(source.doc["store_root"]), "lineages", source.doc["lineage_id"])
     contents = base.read_bytes()
     base.unlink()
@@ -411,7 +411,7 @@ def test_dry_run_detects_missing_base_and_corrupted_recipe(source, tmp_path):
 
 
 def test_auto_requires_gpu_and_worker_cap(monkeypatch):
-    from mlaas_data_generator.cli import run_manifest
+    from flaas_data_generator.cli import run_manifest
     monkeypatch.setattr(run_manifest, "_detect_cuda_device_ids", lambda: [0, 1, 2])
     assert batch._gpu_slots(None) == [0, 1, 2] and batch._gpu_slots(2) == [0, 1]
     monkeypatch.setattr(run_manifest, "_detect_cuda_device_ids", lambda: [])

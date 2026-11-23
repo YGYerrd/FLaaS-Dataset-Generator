@@ -1,12 +1,13 @@
 import sqlite3
 import json
 import types
+from pathlib import Path
 
 import numpy as np
 import pytest
 
-from mlaas_data_generator.services import runner
-from mlaas_data_generator.cli import run_manifest as run_manifest_cli
+from flaas_data_generator.services import runner
+from flaas_data_generator.cli import run_manifest as run_manifest_cli
 
 
 class DummyModel:
@@ -609,8 +610,8 @@ def test_run_manifest_auto_gpu_affinity_only_for_auto_like_devices():
 
 
 def test_run_manifest_builds_per_gpu_db_paths():
-    assert run_manifest_cli._db_path_for_gpu("outputs/services.db", 0).endswith("outputs\\services.gpu0.db")
-    assert run_manifest_cli._db_path_for_gpu("outputs/services.sqlite.db", 1).endswith("outputs\\services.gpu1.sqlite.db")
+    assert Path(run_manifest_cli._db_path_for_gpu("outputs/services.db", 0)) == Path("outputs") / "services.gpu0.db"
+    assert Path(run_manifest_cli._db_path_for_gpu("outputs/services.sqlite.db", 1)) == Path("outputs") / "services.gpu1.sqlite.db"
 
 
 def test_run_manifest_rewrites_entry_db_path_for_gpu():
@@ -623,7 +624,7 @@ def test_run_manifest_rewrites_entry_db_path_for_gpu():
 
     gpu_entry = run_manifest_cli._entry_with_gpu_db_path(entry, 1)
 
-    assert gpu_entry.resolved["db_path"].endswith("outputs\\services.gpu1.db")
+    assert Path(gpu_entry.resolved["db_path"]) == Path("outputs") / "services.gpu1.db"
     assert entry.resolved["db_path"] == "outputs/services.db"
 
 

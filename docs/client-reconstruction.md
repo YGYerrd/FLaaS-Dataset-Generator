@@ -70,9 +70,9 @@ resets model weights and training state to the common initial state.
 Recipe-only execution results do not carry trained tensor copies.
 
 ```powershell
-python -m mlaas_data_generator.cli.main run-manifest --file clients.csv
-python -m mlaas_data_generator.cli.main run-manifest --file clients.csv --weight-retention checkpoint
-python -m mlaas_data_generator.cli.main run-manifest --file clients.csv --retain-validation-checkpoint
+python -m flaas_data_generator.cli.main run-manifest --file clients.csv
+python -m flaas_data_generator.cli.main run-manifest --file clients.csv --weight-retention checkpoint
+python -m flaas_data_generator.cli.main run-manifest --file clients.csv --retain-validation-checkpoint
 ```
 
 Reconstruction recreates a model from the recorded family, data and training
@@ -111,7 +111,7 @@ client checkpoint. Keep the context open when accessing its prepared reference
 set; image-store resources close when the context exits.
 
 ```python
-from mlaas_data_generator.client_reconstruction import materialize_service
+from flaas_data_generator.client_reconstruction import materialize_service
 
 with materialize_service("services.db", "client_id", device="cpu") as replay:
     model = replay["model"]
@@ -121,7 +121,7 @@ with materialize_service("services.db", "client_id", device="cpu") as replay:
 Export reconstructed weights on demand and write separate observations:
 
 ```powershell
-python -m mlaas_data_generator.client_reconstruction --db services.db --service-id client_id --output-dir outputs/materialized --materialize-only
+python -m flaas_data_generator.client_reconstruction --db services.db --service-id client_id --output-dir outputs/materialized --materialize-only
 ```
 
 ## Validation
@@ -152,7 +152,7 @@ lists every reused comparison; failed or missing cases still execute.
 A single comparison:
 
 ```powershell
-python -m mlaas_data_generator.client_reconstruction --db services.db --service-id client_id --output-dir outputs/comparison --device cpu
+python -m flaas_data_generator.client_reconstruction --db services.db --service-id client_id --output-dir outputs/comparison --device cpu
 ```
 
 Immutable reports contain reference/reconstructed quality metrics, training
@@ -215,8 +215,8 @@ eligibility without a client checkpoint. Measured validation stays pending until
 comparison evidence is supplied; backend availability does not imply fidelity.
 
 ```powershell
-python -m mlaas_data_generator.cli.main task-capabilities --task fill_mask --backend hf_finetune
-python -m mlaas_data_generator.cli.main task-capabilities --reconstruction-report <content-addressed-report.json>
+python -m flaas_data_generator.cli.main task-capabilities --task fill_mask --backend hf_finetune
+python -m flaas_data_generator.cli.main task-capabilities --reconstruction-report <content-addressed-report.json>
 ```
 
 The second command verifies report integrity and displays the exact family,

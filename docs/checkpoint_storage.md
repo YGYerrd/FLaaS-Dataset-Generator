@@ -35,8 +35,8 @@ serve as separate source/destination stores. Convert exact checkpoints without
 retraining:
 
 ```powershell
-.venv/Scripts/python.exe -m mlaas_data_generator.migrate_checkpoints --store-root outputs/legacy_service_artifacts --output-store outputs/migrated_service_artifacts --weight-format int8 --all --dry-run
-.venv/Scripts/python.exe -m mlaas_data_generator.migrate_checkpoints --store-root outputs/legacy_service_artifacts --output-store outputs/migrated_service_artifacts --weight-format int8 --all > outputs/checkpoint_migration_int8.jsonl
+.venv/Scripts/python.exe -m flaas_data_generator.migrate_checkpoints --store-root outputs/legacy_service_artifacts --output-store outputs/migrated_service_artifacts --weight-format int8 --all --dry-run
+.venv/Scripts/python.exe -m flaas_data_generator.migrate_checkpoints --store-root outputs/legacy_service_artifacts --output-store outputs/migrated_service_artifacts --weight-format int8 --all > outputs/checkpoint_migration_int8.jsonl
 ```
 
 Use repeated `--service-id SERVICE_ID` arguments instead of `--all` to select a batch.
@@ -51,7 +51,7 @@ start the INT8 command above. Use the original exact store as the source, not
 the partially converted FP16 store. Existing FP16 artifacts are retained, and
 conflicting representations cannot overwrite each other's service manifests.
 
-INT8 uses `int8_block256_safetensors_v1` within `mlaas-reduced-checkpoint-v1`.
+INT8 uses `int8_block256_safetensors_v1` within `flaas-reduced-checkpoint-v1`.
 Each block of up to 256 floating-point values has one positive FP32 scale:
 `scale = max(abs(block)) / 127`, `q = clip(round(value / scale), -127, 127)`.
 Rounding uses nearest-even, zero blocks use scale 1, and the loader reconstructs
@@ -66,7 +66,7 @@ weight error than FP16; prediction quality must be evaluated separately.
 
 The command verifies and reconstructs saved exact base/patch weights, then calls the
 production `persist_reduced_checkpoint()` encoder and the normal reconstruction
-decoder. The output is exactly `mlaas-reduced-checkpoint-v1`, including the original
+decoder. The output is exactly `flaas-reduced-checkpoint-v1`, including the original
 source identity, separate reload hash, original execution dtypes and weight-error
 measurements. Exact immutable parent tensors are copied into the destination CAS
 and deduplicated, including explicit FedAvg round parents. Zero-patch references
@@ -83,7 +83,7 @@ configuration/tokenizer/processor support artifacts for model construction.
 Reload a converted checkpoint with the existing API:
 
 ```python
-from mlaas_data_generator.checkpoint_store import restore_service_state
+from flaas_data_generator.checkpoint_store import restore_service_state
 
 reload_hash = restore_service_state("outputs/service_artifacts_int8", service_id, model)
 ```
@@ -124,10 +124,10 @@ Use the default `--compression none` to avoid outer compression work.
 This checkout supports a git-ignored `storage.local.json` at the repository root:
 
 ```json
-{"overflow_dir": "D:\\MLaaS", "reserve_bytes": 21474836480}
+{"overflow_dir": "D:\\FLaaS", "reserve_bytes": 21474836480}
 ```
 
-`MLAAS_OVERFLOW_DIR` overrides the destination. Without either setting, storage
+`FLAAS_OVERFLOW_DIR` overrides the destination. Without either setting, storage
 behaviour is unchanged. Create the destination folder before use and keep its
 drive letter stable. New tensor objects use the external drive when writing their
 encoded payload and manifest would leave less than 20 GiB on the primary volume.
@@ -161,11 +161,11 @@ whose state cannot be captured and restored exactly use the explicit
 
 ## Canonical tensor state
 
-The only tensor-state hash specification is `mlaas-tensor-state-v1`. Its
+The only tensor-state hash specification is `flaas-tensor-state-v1`. Its
 SHA-256 input is the following binary stream:
 
 ```text
-ASCII bytes "MLAAS-TENSOR-STATE-V1\0"
+hex bytes 4d 4c 41 41 53 followed by ASCII "-TENSOR-STATE-V1" and one NUL byte
 uint64_be entry_count
 for each entry in native model-state order:
     uint64_be name_utf8_nfc_length
@@ -201,7 +201,7 @@ other, and schema JSON never contains tensor values.
 
 ## Patch semantics and compression
 
-The semantic format is `mlaas-tensor-patch-v1`. It binds an immutable base
+The semantic format is `flaas-tensor-patch-v1`. It binds an immutable base
 state hash to a target state hash and represents changed entries with exact
 byte-XOR or exact replacement operations. Unchanged entries are inherited from
 the base. Applying a patch requires the same ordered entry descriptors and is

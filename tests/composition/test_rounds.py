@@ -6,11 +6,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from mlaas_composition.cli import main
-from mlaas_composition.manifest import generate_composition_manifest
-from mlaas_composition.round_manifest import extend_manifest, load_baselines, VERSION
-from mlaas_composition.round_execution import export_rounds
-from mlaas_composition import run_manifest as batch, round_execution
+from flaas_composition.cli import main
+from flaas_composition.manifest import generate_composition_manifest
+from flaas_composition.round_manifest import extend_manifest, load_baselines, VERSION
+from flaas_composition.round_execution import export_rounds
+from flaas_composition import run_manifest as batch, round_execution
 from tests.composition.test_manifest import prepare, read_rows
 from tests.composition.test_batch_executor import source, entry, manifest, ToyModel
 
@@ -125,7 +125,7 @@ def evolving(source, monkeypatch):
         source.calls.append(sid)
         yield {"model": ToyModel(value + {"a": 2, "b": 6, "c": 10}[sid]), "initial": initial_state,
                "training": {"train_time_s": 1}, "replay_evidence": {"selected_rows_match": True}}
-    monkeypatch.setattr("mlaas_data_generator.client_reconstruction.materialize_service", materialize)
+    monkeypatch.setattr("flaas_data_generator.client_reconstruction.materialize_service", materialize)
     source.starts = starts
     return source
 
@@ -186,7 +186,7 @@ def test_unavailable_clients_and_single_contributor_preserve_history(evolving, t
 def test_deadlines_exclude_late_updates_and_stop_starting_clients(evolving, tmp_path, monkeypatch):
     clock = [0.0]
     monkeypatch.setattr(round_execution, "time", SimpleNamespace(perf_counter=lambda: clock[0]))
-    from mlaas_data_generator import client_reconstruction
+    from flaas_data_generator import client_reconstruction
     original = client_reconstruction.materialize_service
     @contextmanager
     def slow(*args, **kwargs):
@@ -207,7 +207,7 @@ def test_deadlines_exclude_late_updates_and_stop_starting_clients(evolving, tmp_
 
 
 def test_round_failure_keeps_completed_rounds_and_retry_restarts_series(evolving, tmp_path, monkeypatch):
-    from mlaas_data_generator import client_reconstruction
+    from flaas_data_generator import client_reconstruction
     original = client_reconstruction.materialize_service
     @contextmanager
     def fail_second_round(*args, **kwargs):
@@ -230,7 +230,7 @@ def test_round_dry_run_is_metadata_only_and_deadline_changes_run_identity(evolvi
     row = round_entry(evolving.doc["family_id"])
     path = manifest(tmp_path / "rounds.csv", [row])
     db = tmp_path / "absent" / "results.db"
-    monkeypatch.setattr("mlaas_data_generator.cli.manifest.preparation.load_lineage_base",
+    monkeypatch.setattr("flaas_data_generator.cli.manifest.preparation.load_lineage_base",
                         lambda *a, **kw: pytest.fail("dry run loaded tensors"))
     first = batch.run_composition_manifest(path, evolving.db, db, dry_run=True)
     assert first["ready"] == 1 and not db.parent.exists() and not evolving.starts

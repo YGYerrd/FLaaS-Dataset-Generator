@@ -3,11 +3,11 @@ from collections import Counter
 
 import pytest
 
-from mlaas_data_generator.cli.main import build_parser
-from mlaas_data_generator.cli.manifest import hf_manifest_builder as builder
-from mlaas_data_generator.cli.manifest.preparation import group_key
-from mlaas_data_generator.cli.run_manifest import load_manifest, _resolve_row
-from mlaas_data_generator.services.runner import ServiceRunner
+from flaas_data_generator.cli.main import build_parser
+from flaas_data_generator.cli.manifest import hf_manifest_builder as builder
+from flaas_data_generator.cli.manifest.preparation import group_key
+from flaas_data_generator.cli.run_manifest import load_manifest, _resolve_row
+from flaas_data_generator.services.runner import ServiceRunner
 
 
 @pytest.mark.parametrize("manifest_format", ["review", "expanded"])

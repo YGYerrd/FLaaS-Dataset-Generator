@@ -4,7 +4,7 @@ Start with the [project README](../README.md) for the main workflow and key file
 
 | Guide | Contents |
 | --- | --- |
-| [Execution guide source](artifact/mlaas_execution_guide.tex) | LaTeX source for the CLI and composition reference |
+| [Execution guide source](artifact/flaas_execution_guide.tex) | LaTeX source for the CLI and composition reference |
 | [Retained datasets](datasets.md) | Canonical paths, signature coverage and replay dependencies |
 | [Setup and usage](usage.md) | Installation, manifest review, GPU workers, retries, queries and troubleshooting |
 | [Generation policies](generation-policies.md) | Client recipes, training policies and reproducibility |
@@ -27,5 +27,4 @@ Start with the [project README](../README.md) for the main workflow and key file
 | [Core tests](../tests/README.md) | Retained coverage and test commands |
 | [Cleanup record](cleanup.md) | Removed artifacts and verification results |
 
-Research papers remain in `reference/`; slides and presentation sources remain in
-[presentation/](presentation/README.md). Obsolete diagnostic scripts, one-off exports and local recovery archives have been removed.
+The [archived papers, presentations and audit records](https://github.com/YGYerrd/FLaaS-Dataset-Generator/tree/78e308240bf78cbd9bc59de2e2120b68cc64a3cd/docs) document the earlier independent-service study.

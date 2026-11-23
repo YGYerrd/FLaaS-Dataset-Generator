@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.models.adapters.hf_core import HFCore
+from flaas_data_generator.models.adapters.hf_core import HFCore
 
 
 class TinyLossModel(torch.nn.Module):
@@ -201,7 +201,7 @@ def test_nonfinite_amp_latches_fp32_without_losing_accumulated_gradients():
     ("local-checkpoint", "t5"), ("google/mt5-small", "mt5"),
 ])
 def test_t5_policy_applies_before_cuda_and_to_manifest_config(model_id, family):
-    from mlaas_data_generator.precision_policy import apply_precision_policy, T5_FP32_REASON
+    from flaas_data_generator.precision_policy import apply_precision_policy, T5_FP32_REASON
     core = tiny_core()
     core.model_id = model_id
     core.model.config = SimpleNamespace(model_type=family)
@@ -228,7 +228,7 @@ def test_precision_configuration_normalizes_loaded_weights(mixed, precision):
 
 @pytest.mark.parametrize("fail", [False, True])
 def test_bart_generation_preserves_attention_and_restores_cache(monkeypatch, fail):
-    from mlaas_data_generator.models.adapters import hf_core
+    from flaas_data_generator.models.adapters import hf_core
     monkeypatch.setattr(hf_core.os, "name", "nt")
     core = tiny_core()
     core.device = torch.device("cuda")

@@ -6,9 +6,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from mlaas_data_generator.cli import miopen_worker as worker
-from mlaas_data_generator.cli import run_manifest as runner
-from mlaas_data_generator.cli.main import build_parser
+from flaas_data_generator.cli import miopen_worker as worker
+from flaas_data_generator.cli import run_manifest as runner
+from flaas_data_generator.cli.main import build_parser
 
 
 @pytest.mark.parametrize("family,device,hip,platform,architecture,expected", [

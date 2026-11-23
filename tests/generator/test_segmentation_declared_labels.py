@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_data_generator.data.preprocessors.hf_image import (
+from flaas_data_generator.data.preprocessors.hf_image import (
     _declared_segmentation_label_mapping, _to_numpy_mask, preprocess_hf_image,
 )
 

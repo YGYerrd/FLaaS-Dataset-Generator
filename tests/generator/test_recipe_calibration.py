@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mlaas_data_generator.clients import calibration, recipes, training
-from mlaas_data_generator.clients.partitioning import client_partition
+from flaas_data_generator.clients import calibration, recipes, training
+from flaas_data_generator.clients.partitioning import client_partition
 
 
 def policy(model="bert-base-uncased", dataset="imdb", subset=None):
@@ -88,7 +88,7 @@ def test_supported_dirichlet_blends_training_prior_not_benchmark_labels():
 
 def test_previous_policy_replays_without_consulting_new_evidence(monkeypatch):
     from copy import deepcopy
-    from mlaas_data_generator.provenance import sha256_json
+    from flaas_data_generator.provenance import sha256_json
     before = deepcopy(sample())
     for row in before:
         p = deepcopy(row["training_policy"])
@@ -153,9 +153,9 @@ def test_evidence_miner_excludes_invalid_runs_and_deduplicates_imports(tmp_path)
 
 
 def test_truncated_manifest_roundtrip_freezes_final_mixture_and_evidence(tmp_path):
-    from mlaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest, save_manifest
-    from mlaas_data_generator.cli.manifest.review import expand_review_manifest
-    from mlaas_data_generator.cli.run_manifest import _resolve_row, _validate_row
+    from flaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest, save_manifest
+    from flaas_data_generator.cli.manifest.review import expand_review_manifest
+    from flaas_data_generator.cli.run_manifest import _resolve_row, _validate_row
     df = build_hf_manifest(task_keys=["text_classification"],models_per_task=1,datasets_per_model=1,
         clients_per_family=50,total_services=20,seed=42,
         training_regimes=["finetune_transfer"],avg_sample_size=1000)

@@ -9,7 +9,7 @@ initial model. Only classification families with measured accuracy are supported
 ## Generate, execute and export
 
 ```powershell
-python -m mlaas_composition generate-manifest `
+python -m flaas_composition generate-manifest `
   --prepared-dir outputs/pooled `
   --compositions 30 `
   --rounds 5 `
@@ -19,18 +19,18 @@ python -m mlaas_composition generate-manifest `
   --seed 42 `
   --output outputs/pooled/round_manifest.csv
 
-python -m mlaas_composition run-manifest `
+python -m flaas_composition run-manifest `
   --file outputs/pooled/round_manifest.csv `
   --source-db outputs/pooled/services.db `
   --db outputs/round_compositions.db `
   --dry-run
 
-python -m mlaas_composition run-manifest `
+python -m flaas_composition run-manifest `
   --file outputs/pooled/round_manifest.csv `
   --source-db outputs/pooled/services.db `
   --db outputs/round_compositions.db
 
-python -m mlaas_composition export-rounds `
+python -m flaas_composition export-rounds `
   --db outputs/round_compositions.db `
   --output outputs/composition_rounds.csv
 ```

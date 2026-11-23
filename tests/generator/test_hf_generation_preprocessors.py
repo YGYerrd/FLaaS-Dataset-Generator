@@ -4,8 +4,8 @@ import types
 import numpy as np
 import pytest
 
-from mlaas_data_generator.data.preprocessors.hf import preprocess_hf
-from mlaas_data_generator.data.preprocessors import hf_text_generation
+from flaas_data_generator.data.preprocessors.hf import preprocess_hf
+from flaas_data_generator.data.preprocessors import hf_text_generation
 
 
 @pytest.fixture(autouse=True)

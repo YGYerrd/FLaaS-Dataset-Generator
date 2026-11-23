@@ -2,7 +2,7 @@
 from collections import Counter
 import random
 
-from mlaas_data_generator.cli.manifest.hf_manifest_builder import (
+from flaas_data_generator.cli.manifest.hf_manifest_builder import (
     _balanced_family_limit, _cap_models_per_family, _sort_datasets, _sort_models,
 )
 
@@ -77,7 +77,7 @@ def test_task_rotation_handles_unequal_available_families():
 
 
 def test_incompatible_model_does_not_consume_architecture_cap(monkeypatch):
-    from mlaas_data_generator.cli.manifest import hf_manifest_builder as builder
+    from flaas_data_generator.cli.manifest import hf_manifest_builder as builder
 
     good = next(m for m in builder._model_candidates("text_classification")
                 if m["hf_model_id"] == "albert/albert-base-v2")

@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.models.adapters.mobilebert_stability import (
+from flaas_data_generator.models.adapters.mobilebert_stability import (
     NormalizedLinear, apply_mobilebert_head_normalization,
 )
 from tests.generator.test_hf_training_precision import tiny_core
@@ -70,7 +70,7 @@ def test_nonfinite_gradient_does_not_mutate_parameters():
 
 
 def test_normalization_changes_preparation_identity():
-    from mlaas_data_generator.cli.manifest.preparation import group_key
+    from flaas_data_generator.cli.manifest.preparation import group_key
     config = {"dataset": "hf", "dataset_name": "glue", "dataset_config": "mrpc",
               "model_type": "hf_finetune", "hf_model_id": "google/mobilebert-uncased",
               "hf_task": "sentence_similarity"}
@@ -78,7 +78,7 @@ def test_normalization_changes_preparation_identity():
 
 
 def test_grouped_model_receives_and_clears_per_client_clipping():
-    from mlaas_data_generator.services.runner import _apply_runtime_knobs_to_model
+    from flaas_data_generator.services.runner import _apply_runtime_knobs_to_model
     core = SimpleNamespace(max_grad_norm=None)
     adapter = SimpleNamespace(core=core)
     _apply_runtime_knobs_to_model(adapter, {"max_grad_norm": 1.})
@@ -91,7 +91,7 @@ def test_grouped_model_receives_and_clears_per_client_clipping():
 
 def test_saved_model_config_reinstates_normalization(tmp_path):
     from transformers import MobileBertConfig, MobileBertForSequenceClassification
-    from mlaas_data_generator.models.adapters.hf_core import HFCore
+    from flaas_data_generator.models.adapters.hf_core import HFCore
     cfg = MobileBertConfig(vocab_size=32, hidden_size=32, embedding_size=8,
                           intra_bottleneck_size=8, intermediate_size=16,
                           num_attention_heads=2, num_hidden_layers=1,

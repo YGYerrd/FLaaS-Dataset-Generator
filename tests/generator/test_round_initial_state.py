@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from mlaas_data_generator import client_reconstruction as replay
-from mlaas_data_generator.checkpoint_store import TensorEntry, TensorState, capture_model_tensor_state
-from mlaas_data_generator.services.runner import ServiceRunner
+from flaas_data_generator import client_reconstruction as replay
+from flaas_data_generator.checkpoint_store import TensorEntry, TensorState, capture_model_tensor_state
+from flaas_data_generator.services.runner import ServiceRunner
 from tests.generator.test_weight_retention import trained_recipe
 
 

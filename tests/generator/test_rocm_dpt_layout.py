@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from mlaas_data_generator.models.adapters import rocm_dpt_layout as layout
+from flaas_data_generator.models.adapters import rocm_dpt_layout as layout
 
 
 def model():
@@ -20,7 +20,7 @@ def model():
 def rocm(monkeypatch):
     monkeypatch.setattr(layout.sys, "platform", "win32")
     monkeypatch.setattr(torch.version, "hip", "test-rocm")
-    monkeypatch.delenv("MLAAS_ROCM_DPT_CONTIGUOUS_CONV", raising=False)
+    monkeypatch.delenv("FLAAS_ROCM_DPT_CONTIGUOUS_CONV", raising=False)
 
 
 @pytest.mark.parametrize("change", ["linux", "nvidia", "cpu", "other_model", "disabled"])
@@ -36,7 +36,7 @@ def test_scopes_workaround_to_windows_rocm_dpt(rocm, monkeypatch, change):
     elif change == "other_model":
         net.config.model_type = "segformer"
     else:
-        monkeypatch.setenv("MLAAS_ROCM_DPT_CONTIGUOUS_CONV", "0")
+        monkeypatch.setenv("FLAAS_ROCM_DPT_CONTIGUOUS_CONV", "0")
     assert layout.configure_dpt_convolution_layout(net, torch, device) == 0
     assert not any(m._forward_pre_hooks for m in net.modules())
 
@@ -87,8 +87,8 @@ def test_model_reuse_copy_and_serialization_do_not_duplicate_hooks(rocm):
 
 @pytest.mark.parametrize("family", ["dpt", "upernet"])
 def test_hfcore_installs_layout_during_model_configuration(rocm, monkeypatch, family):
-    from mlaas_data_generator.models.adapters.hf_core import HFCore
-    monkeypatch.delenv("MLAAS_ROCM_UPERNET_CONTIGUOUS_CONV", raising=False)
+    from flaas_data_generator.models.adapters.hf_core import HFCore
+    monkeypatch.delenv("FLAAS_ROCM_UPERNET_CONTIGUOUS_CONV", raising=False)
     core = HFCore.__new__(HFCore)
     core.model, core.torch, core.device = model(), torch, torch.device("cuda")
     core.model.config.model_type = family
@@ -102,7 +102,7 @@ def test_hfcore_installs_layout_during_model_configuration(rocm, monkeypatch, fa
 @pytest.mark.parametrize("backbone", ["convnext", "swin", None])
 @pytest.mark.parametrize("as_dict", [False, True])
 def test_upernet_requires_convnext_backbone(rocm, monkeypatch, backbone, as_dict):
-    monkeypatch.delenv("MLAAS_ROCM_UPERNET_CONTIGUOUS_CONV", raising=False)
+    monkeypatch.delenv("FLAAS_ROCM_UPERNET_CONTIGUOUS_CONV", raising=False)
     net = model()
     net.config.model_type = "upernet"
     net.config.backbone_config = ({"model_type": backbone} if as_dict
@@ -114,7 +114,7 @@ def test_upernet_requires_convnext_backbone(rocm, monkeypatch, backbone, as_dict
 
 
 def test_upernet_optout_is_independent_of_dpt(rocm, monkeypatch):
-    monkeypatch.setenv("MLAAS_ROCM_UPERNET_CONTIGUOUS_CONV", "0")
+    monkeypatch.setenv("FLAAS_ROCM_UPERNET_CONTIGUOUS_CONV", "0")
     net = model()
     net.config.model_type = "upernet"
     net.config.backbone_config = SimpleNamespace(model_type="convnext")

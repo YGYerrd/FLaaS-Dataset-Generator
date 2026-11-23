@@ -151,7 +151,7 @@ resume the same command with `--metric-evaluation-profile benchmark`, retaining
 the same file, database, worker and device options. For example:
 
 ```powershell
-.venv\Scripts\python.exe -m mlaas_data_generator.cli.main run-manifest `
+.venv\Scripts\python.exe -m flaas_data_generator.cli.main run-manifest `
   --file outputs/current_manifest.csv --db outputs/services.db `
   --metric-evaluation-profile benchmark
 ```
@@ -181,8 +181,4 @@ current evaluation. Trust has its own preference weight and constraints.
 Use `evaluation_requirements.protocol_version=production_evaluation_v1` to
 request the previous protocol explicitly; versions are not mixed in one request.
 
-## Historical reconstruction pilot
-
-The September 2026 one-off pilot harness and its generated outputs were removed
-during repository cleanup. The versioned evaluation contracts above remain in
-production code and the current regression suite.
+The [historical reconstruction pilot](https://github.com/YGYerrd/FLaaS-Dataset-Generator/blob/78e308240bf78cbd9bc59de2e2120b68cc64a3cd/docs/metric-evaluation-protocol.md#historical-reconstruction-pilot) records the original evaluation results.

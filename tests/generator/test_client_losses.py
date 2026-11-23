@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.client_losses import measure_client_losses, _sample_losses, client_loss_evidence
-from mlaas_data_generator.models.adapters.hf_core import HFCore
-from mlaas_data_generator.models.adapters.hf_task import (
+from flaas_data_generator.client_losses import measure_client_losses, _sample_losses, client_loss_evidence
+from flaas_data_generator.models.adapters.hf_core import HFCore
+from flaas_data_generator.models.adapters.hf_task import (
     SequenceClassificationSpec, SentenceSimilaritySpec, TokenClassificationSpec, ImageSegmentationSpec)
 
 
@@ -222,8 +222,8 @@ from tests.generator.test_weight_retention import trained_recipe
 
 def test_recipe_loss_capture_preserves_training_and_source_artifacts(trained_recipe):
     from pathlib import Path
-    from mlaas_data_generator.client_reconstruction import materialize_service
-    from mlaas_data_generator.checkpoint_store import capture_model_tensor_state
+    from flaas_data_generator.client_reconstruction import materialize_service
+    from flaas_data_generator.checkpoint_store import capture_model_tensor_state
     db = trained_recipe["db_path"]
     original = Path(db).read_bytes()
     with materialize_service(db, "recipe") as run:

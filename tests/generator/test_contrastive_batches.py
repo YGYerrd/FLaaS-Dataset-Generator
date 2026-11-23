@@ -5,9 +5,9 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.contrastive_batch import contrastive_ranges
-from mlaas_data_generator.clients.resources import _batch_sizes_for
-from mlaas_data_generator.models.adapters.hf_task import TextImageRetrievalSpec
+from flaas_data_generator.contrastive_batch import contrastive_ranges
+from flaas_data_generator.clients.resources import _batch_sizes_for
+from flaas_data_generator.models.adapters.hf_task import TextImageRetrievalSpec
 from tests.generator.test_hf_training_precision import tiny_core
 
 

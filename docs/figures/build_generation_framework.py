@@ -9,18 +9,17 @@ hf-manifest plans contracts/recipes; run-manifest freezes durable families and
 executes raw-row selection, preparation, training, measurement and persistence.
 
 Implementation sources (relative to repository root):
-  mlaas_data_generator/cli/manifest/hf_manifest_builder.py
-  mlaas_data_generator/cli/manifest/preparation.py
-  mlaas_data_generator/clients/{policies,training,partitioning,quantities}.py
-  mlaas_data_generator/data/tokenization_selection.py
-  mlaas_data_generator/services/runner.py
-  mlaas_data_generator/client_reconstruction.py
-  mlaas_data_generator/execution_provenance.py
-  mlaas_data_generator/storage/schema.sql
+  flaas_data_generator/cli/manifest/hf_manifest_builder.py
+  flaas_data_generator/cli/manifest/preparation.py
+  flaas_data_generator/clients/{policies,training,partitioning,quantities}.py
+  flaas_data_generator/data/tokenization_selection.py
+  flaas_data_generator/services/runner.py
+  flaas_data_generator/client_reconstruction.py
+  flaas_data_generator/execution_provenance.py
+  flaas_data_generator/storage/schema.sql
 Interpretation and downstream scope:
   docs/client-reconstruction.md; docs/generation-policies.md
   docs/metric-evaluation-protocol.md; docs/recipe-composition.md
-  docs/journal/reuse-protocols.md
 
 Figure caption: Source model/dataset contracts define compatible families with
 pinned dependencies, shared initial weights, catalogue evaluation rows and a
@@ -150,7 +149,7 @@ def build():
     c = Canvas(str(PDF), pagesize=(W*SCALE, H*SCALE), pageCompression=1)
     c.scale(SCALE, SCALE)
     c.setTitle("Dataset generator framework - independent recipe-only generation")
-    c.setAuthor("MLaaS")
+    c.setAuthor("FLaaS")
     c.setSubject("Eight-stage framework grounded in the local dataset generator implementation")
     svg.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc">')
     svg.append('<title id="title">Dataset generator: independent recipe-only generation</title>')

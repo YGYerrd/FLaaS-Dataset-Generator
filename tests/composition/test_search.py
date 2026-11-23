@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-from mlaas_composition import run_search_algorithms
+from flaas_composition import run_search_algorithms
 
 
 def test_all_search_methods_share_the_same_feasible_instance_and_evaluator():

@@ -25,10 +25,10 @@ def test_failure_does_not_override_completed_and_conflicting_success_is_rejected
 
 
 def test_relocation_cannot_escape_the_extracted_root(tmp_path):
-    audit = ArtifactAudit(tmp_path)
-    assert audit.local("/home/joshua/MLaaS_Dataset_Gen/outputs/a.json") == tmp_path / "a.json"
+    audit = ArtifactAudit(tmp_path, "/recorded/project/outputs")
+    assert audit.local("/recorded/project/outputs/a.json") == tmp_path / "a.json"
     with pytest.raises(ValueError, match="outside"):
-        audit.local("/home/joshua/MLaaS_Dataset_Gen/outputs/../secret")
+        audit.local("/recorded/project/outputs/../secret")
     with pytest.raises(ValueError, match="unrecognised"):
         audit.local("/unrelated/file")
 
@@ -46,7 +46,7 @@ def test_dependency_inventory_rejects_bad_digest_and_changed_files(tmp_path):
 
 
 def test_merge_preserves_sources_and_remaps_local_integer_ids(tmp_path):
-    schema = (Path(__file__).resolve().parents[2] / "mlaas_data_generator/storage/schema.sql").read_text()
+    schema = (Path(__file__).resolve().parents[2] / "flaas_data_generator/storage/schema.sql").read_text()
     connections = {}
     for index, name in enumerate(("validation.db", "validation.gpu0.db", "validation.gpu1.db")):
         path = tmp_path / name

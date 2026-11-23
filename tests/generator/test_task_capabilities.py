@@ -2,13 +2,13 @@ import json
 import numpy as np
 import pytest
 
-from mlaas_data_generator.task_capabilities import resolve_capabilities, capability_matrix, CAPABILITIES
-from mlaas_data_generator.tasks import TaskContract, TaskContractError, resolve_task_contract
-from mlaas_data_generator.tasks.contracts import target_fingerprints, validate_partition
-from mlaas_data_generator.tasks.runtime import ConfusionAccumulator, TaskEvaluation
-from mlaas_data_generator.shared_parent import reserve_evaluation
-from mlaas_composition.validation_cli import _read_cohort, _read_cohort_labels
-from mlaas_composition.validation import measure_model_outputs
+from flaas_data_generator.task_capabilities import resolve_capabilities, capability_matrix, CAPABILITIES
+from flaas_data_generator.tasks import TaskContract, TaskContractError, resolve_task_contract
+from flaas_data_generator.tasks.contracts import target_fingerprints, validate_partition
+from flaas_data_generator.tasks.runtime import ConfusionAccumulator, TaskEvaluation
+from flaas_data_generator.shared_parent import reserve_evaluation
+from flaas_composition.validation_cli import _read_cohort, _read_cohort_labels
+from flaas_composition.validation import measure_model_outputs
 
 
 def config(task="token_classification"):
@@ -86,8 +86,8 @@ def test_contract_ignores_missing_scalar_fields_without_changing_identity(missin
 
 
 def test_mixed_text_image_manifest_exports_preflight_and_roundtrips(tmp_path):
-    from mlaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest, save_manifest
-    from mlaas_data_generator.cli.run_manifest import load_manifest, _resolve_row, _validate_row
+    from flaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest, save_manifest
+    from flaas_data_generator.cli.run_manifest import load_manifest, _resolve_row, _validate_row
     frame = build_hf_manifest(task_keys=["text_classification", "image_classification"],
                               models_per_task=1, datasets_per_model=1, clients_per_family=1,
                               manifest_profile="test", seed=42)
@@ -106,8 +106,8 @@ def test_mixed_text_image_manifest_exports_preflight_and_roundtrips(tmp_path):
 
 def test_structured_evaluation_retains_existing_prediction_counts(monkeypatch):
     from types import SimpleNamespace
-    from mlaas_data_generator.services.runner import ServiceRunner
-    from mlaas_data_generator.tasks import runtime
+    from flaas_data_generator.services.runner import ServiceRunner
+    from flaas_data_generator.tasks import runtime
     contract = resolve_task_contract(config("image_segmentation"))
     metrics = {"loss": .5, "iou": .4, "dice": .6,
                "per_class": {"0": {"predicted": 7, "support": 5}, "1": {"predicted": 3, "support": 5}}}
@@ -194,8 +194,8 @@ def test_reservation_rejects_source_group_leakage():
 
 
 def test_recipe_profiles_come_from_the_frozen_task_contract():
-    from mlaas_data_generator.clients.training import build_training_policy
-    from mlaas_data_generator.tasks.contracts import uses_task_protocol
+    from flaas_data_generator.clients.training import build_training_policy
+    from flaas_data_generator.tasks.contracts import uses_task_protocol
     cfg = {**config("seq2seq_generation"), "task_type": "generation", "task_tag": "summarization", "training_regime": "finetune_transfer"}
     cfg["task_contract"] = resolve_task_contract(cfg).as_dict()
     policy = build_training_policy({"config": cfg})
@@ -215,13 +215,13 @@ def test_noncontiguous_segmentation_labels_and_absent_classes():
 
 
 def test_preprocessing_identity_roundtrips_through_csv_parser():
-    from mlaas_data_generator.cli.run_manifest import _coerce_by_column
+    from flaas_data_generator.cli.run_manifest import _coerce_by_column
     identity = {"max_length": 32, "input_shape": [32], "schema": None}
     assert _coerce_by_column("preprocessing_identity", json.dumps(identity)) == identity
 
 
 def test_new_task_protocol_never_borrows_legacy_calibration():
-    from mlaas_data_generator.clients.calibration import attach_calibration
+    from flaas_data_generator.clients.calibration import attach_calibration
     policy = {"task": "token_classification"}
     attach_calibration(policy, {**config(), "task_contract_version": "task_contract_v1"}, evidence={})
     assert policy["calibration"]["status"] == "uncalibrated"

@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_data_generator.services import production_evaluation as evaluation
+from flaas_data_generator.services import production_evaluation as evaluation
 
 
 class FeatureModel:

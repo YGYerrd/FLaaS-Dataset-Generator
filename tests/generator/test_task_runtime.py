@@ -5,9 +5,9 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.tasks import resolve_task_contract, TaskContractError
-from mlaas_data_generator.tasks.runtime import evaluate_task_model
-from mlaas_data_generator.models.adapters.hf_task import Seq2SeqGenerationSpec
+from flaas_data_generator.tasks import resolve_task_contract, TaskContractError
+from flaas_data_generator.tasks.runtime import evaluate_task_model
+from flaas_data_generator.models.adapters.hf_task import Seq2SeqGenerationSpec
 
 
 class Tokenizer:
@@ -51,7 +51,7 @@ def fixture(*, batch_size=2, **decoder_args):
         tokenizer=Tokenizer(), device="cpu", max_length=3, label_pad_value=-100,
         _generation_inference_mode=nullcontext, _run_with_precision_context=lambda fn: fn(),
         _extract_logits=lambda result: result.logits)
-    from mlaas_data_generator.models.adapters.hf_core import HFCore
+    from flaas_data_generator.models.adapters.hf_core import HFCore
     core._batch_item_count = HFCore._batch_item_count
     core._device_type = lambda: "cpu"
     core._batch_iter = lambda x, y: (({k: v[start:start + batch_size] for k, v in x.items()}, y[start:start + batch_size])

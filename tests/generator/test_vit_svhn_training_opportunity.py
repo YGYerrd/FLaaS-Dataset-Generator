@@ -4,9 +4,9 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from mlaas_data_generator.clients import recipes, training
-from mlaas_data_generator.clients.partitioning import client_partition
-from mlaas_data_generator.clients.reviewed_opportunity import runtime_evidence, VIT_SVHN_REFERENCE
+from flaas_data_generator.clients import recipes, training
+from flaas_data_generator.clients.partitioning import client_partition
+from flaas_data_generator.clients.reviewed_opportunity import runtime_evidence, VIT_SVHN_REFERENCE
 
 
 def policy():
@@ -81,8 +81,8 @@ def test_realized_quantity_changes_epochs_and_old_policy_keeps_its_budget():
 def test_real_hf_loop_counts_partial_accumulation_windows_and_successful_updates(monkeypatch, request):
     import torch
     from transformers import ViTConfig, ViTForImageClassification
-    from mlaas_data_generator.models.adapters.hf_core import HFCore
-    from mlaas_data_generator.models.adapters.hf_task import ImageClassificationSpec
+    from flaas_data_generator.models.adapters.hf_core import HFCore
+    from flaas_data_generator.models.adapters.hf_task import ImageClassificationSpec
     previous_threads = torch.get_num_threads()
     request.addfinalizer(lambda: torch.set_num_threads(previous_threads))
     torch.set_num_threads(1)
@@ -109,7 +109,7 @@ def test_real_hf_loop_counts_partial_accumulation_windows_and_successful_updates
     (None, None, False, "unmeasured"),
 ])
 def test_runner_reports_actual_budget_shortfall_and_checks_realized_coverage(monkeypatch, successful, presentations, stopped, status):
-    from mlaas_data_generator.services.runner import ServiceRunner
+    from flaas_data_generator.services.runner import ServiceRunner
     row = supported()
     row.update(split_strategy="dirichlet", skew_axis="class_label")
     runner = ServiceRunner({**row, "hf_model_id": "google/vit-base-patch16-224",
@@ -145,8 +145,8 @@ def test_reference_values_match_preserved_review_evidence():
 
 
 def test_final_generated_roster_keeps_budgets_after_quantity_reassignment():
-    from mlaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
-    from mlaas_data_generator.cli.run_manifest import _resolve_row
+    from flaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
+    from flaas_data_generator.cli.run_manifest import _resolve_row
     frame = build_hf_manifest(task_keys=["image_classification"], models_per_task=20,
         datasets_per_model=20, clients_per_family=12, average_samples=600, seed=42)
     rows = [_resolve_row(row, {}) for _, row in frame[(frame.hf_model_id == "google/vit-base-patch16-224") &

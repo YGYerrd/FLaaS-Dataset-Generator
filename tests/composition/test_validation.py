@@ -6,14 +6,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mlaas_composition import fedavg_validation as fedavg_module
-from mlaas_composition.fedavg_validation import (
+from flaas_composition import fedavg_validation as fedavg_module
+from flaas_composition.fedavg_validation import (
     FedAvgCompositionExecution,
     FedAvgProvenanceError,
     execute_selected_fedavg_composition,
     resolve_selected_fedavg_members,
 )
-from mlaas_composition.validation import (
+from flaas_composition.validation import (
     CohortIsolationError,
     ServicePrediction,
     aggregate_and_measure,
@@ -21,18 +21,18 @@ from mlaas_composition.validation import (
     build_cohort_plan,
     measure_model_outputs,
 )
-from mlaas_composition.validation_cli import (
+from flaas_composition.validation_cli import (
     _read_selected_composition,
     validate_from_files,
 )
-from mlaas_data_generator.checkpoint_store import (
+from flaas_data_generator.checkpoint_store import (
     CompressionSpec,
     ContentAddressedTensorStore,
     TENSOR_STATE_FORMAT,
     capture_model_tensor_state,
     persist_service_patch_from_base_state,
 )
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_data_generator.storage.writer import make_writer
 
 
 def _plan(task_family="classification"):

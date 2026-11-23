@@ -21,7 +21,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from mlaas_data_generator.artifact_audit import ArtifactAudit, validate, canonical_hash
+from flaas_data_generator.artifact_audit import ArtifactAudit, validate, canonical_hash
 
 SOURCE_NAMES = ("validation.db", "validation.gpu0.db", "validation.gpu1.db")
 SERVICE_TABLES = ("services", "service_generation_provenance", "service_metrics",
@@ -170,7 +170,7 @@ def check_model(model_id, revision, task, hub, files):
 def check_dataset(raw, cache, files):
     import pyarrow as pa
     from datasets.fingerprint import Hasher
-    from mlaas_data_generator.data.hf_cache_paths import resolve_hf_cache_path
+    from flaas_data_generator.data.hf_cache_paths import resolve_hf_cache_path
     name, revision, config = raw["dataset_name"], raw["revision"], raw["dataset_config"]
     root = cache / name.replace("/", "___")
     candidates = []
@@ -321,7 +321,14 @@ def main():
         raise ValueError("current completed membership differs from audited roster; no snapshot published")
     write_csv(args.output_dir/"reconciliation.csv", reconciliation, ["service_id", "selected_source", "resolution", "outcomes"])
     print(f"Reconciled {len(selected):,} completed services in {len(family_ids)} families", flush=True)
-    audit = ArtifactAudit(args.root)
+    first = selected[0]
+    recipe_ref = sources[first["source_database"]].execute(
+        "SELECT client_recipe_ref FROM service_generation_provenance WHERE service_id=?", (first["service_id"],)
+    ).fetchone()[0]
+    recorded_root, marker, _ = recipe_ref.rpartition("/outputs/")
+    if not marker or not recorded_root.startswith("/"):
+        raise ValueError("expected an absolute recipe path under the source outputs directory")
+    audit = ArtifactAudit(args.root, recorded_root + marker)
     checks, families, runtime_versions = [], {}, Counter()
     for i, record in enumerate(selected):
         sid = record["service_id"]; conn = sources[record["source_database"]]
@@ -348,7 +355,7 @@ def main():
     if any(r["status"] != "verified" for r in checks):
         raise ValueError("service integrity failures; inspect services.csv")
 
-    from mlaas_data_generator.checkpoint_store import load_lineage_base
+    from flaas_data_generator.checkpoint_store import load_lineage_base
     files, model_results, dataset_results, pool_rows = Files(), {}, {}, []
     for index, (fid, family) in enumerate(sorted(families.items())):
         print(f"Checking replay dependencies: pool {index+1}/70", flush=True)
@@ -398,7 +405,7 @@ def main():
                                          "sha256": digest, "roles": ["recipe_family_base_or_support"]})
     write_csv(args.output_dir/"dependency_files.csv", list(files.rows.values()), ["path", "size_bytes", "mtime_ns", "sha256", "roles"])
     write_json(args.output_dir/"path_map.json", {"version": "composition_path_map_v1",
-        "prefixes": [{"recorded": "/home/joshua/MLaaS_Dataset_Gen/outputs/", "resolved": str(args.root.resolve())}],
+        "prefixes": [{"recorded": audit.source_prefix, "resolved": str(args.root.resolve())}],
         "hf_hub_cache": str(args.hub_cache), "hf_datasets_cache": str(args.dataset_cache),
         "policy": "Resolve paths at read time. Never rewrite hash-bound document contents. Current validation CLI does not automatically consume this map."})
 
@@ -413,7 +420,7 @@ def main():
     for record in files.rows.values():
         path = Path(record["path"])
         if path.is_relative_to(args.root.resolve()):
-            recorded = '/home/joshua/MLaaS_Dataset_Gen/outputs/' + path.relative_to(args.root.resolve()).as_posix()
+            recorded = audit.source_prefix + path.relative_to(args.root.resolve()).as_posix()
             merged.execute("INSERT OR IGNORE INTO preparation_artifact_locations VALUES (?,?,?)", (recorded,str(path),record["sha256"]))
     merged.execute("CREATE VIEW prepared_service_locations AS SELECT g.service_id,g.family_id,"
         "r.resolved_path AS recipe_path,f.resolved_path AS family_path FROM service_generation_provenance g "

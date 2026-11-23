@@ -5,10 +5,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from mlaas_data_generator.diagnostic_json import diagnostic_json, MAX_CONFIG_BYTES
-from mlaas_data_generator import execution_state as state
-from mlaas_data_generator.services.runner import ServiceRunner
-from mlaas_data_generator.storage.writer import SQLiteWriter
+from flaas_data_generator.diagnostic_json import diagnostic_json, MAX_CONFIG_BYTES
+from flaas_data_generator import execution_state as state
+from flaas_data_generator.services.runner import ServiceRunner
+from flaas_data_generator.storage.writer import SQLiteWriter
 
 
 def config(tmp_path):
@@ -161,8 +161,8 @@ def test_roster_prefers_this_attempt_in_gpu_database_over_old_failure(tmp_path):
 
 
 def test_family_preparation_failure_has_terminal_records_for_every_member(tmp_path, monkeypatch):
-    from mlaas_data_generator.cli import run_manifest as manifest
-    from mlaas_data_generator.cli.manifest import preparation
+    from flaas_data_generator.cli import run_manifest as manifest
+    from flaas_data_generator.cli.manifest import preparation
     configs = [{**config(tmp_path), "service_id": f"client_{i}", "dataset": "hf",
                 "dataset_name": "glue", "dataset_config": "mrpc", "hf_task": "sentence_similarity",
                 "hf_model_id": "local-test", "model_type": "hf_finetune", "training_regime": "finetune_transfer"}
@@ -179,7 +179,7 @@ def test_family_preparation_failure_has_terminal_records_for_every_member(tmp_pa
 
 def test_manifest_shutdown_accounts_for_clients_before_dispatch(tmp_path, monkeypatch):
     import pandas as pd
-    from mlaas_data_generator.cli import run_manifest as manifest
+    from flaas_data_generator.cli import run_manifest as manifest
     cfg = config(tmp_path)
     source = tmp_path / "clients.csv"
     pd.DataFrame([{"service_id": "first"}, {"service_id": "second"}]).to_csv(source, index=False)
@@ -193,7 +193,7 @@ def test_manifest_shutdown_accounts_for_clients_before_dispatch(tmp_path, monkey
 
 
 def test_roster_retains_intentional_fedavg_nonparticipation(tmp_path):
-    from mlaas_data_generator.cli import run_manifest as manifest
+    from flaas_data_generator.cli import run_manifest as manifest
     cfg = {**config(tmp_path), "fl_run_id": "fedavg_run"}
     state.register_manifest_roster([cfg], run_id="this_run", manifest_path="clients.csv")
     entry = manifest.ManifestEntry(idx=0, ordinal=1, resolved=cfg, validation=manifest.RowValidation(True))
@@ -207,7 +207,7 @@ def test_roster_retains_intentional_fedavg_nonparticipation(tmp_path):
 
 def test_malformed_manifest_row_is_failed_and_exported(tmp_path, monkeypatch):
     import pandas as pd
-    from mlaas_data_generator.cli import run_manifest as manifest
+    from flaas_data_generator.cli import run_manifest as manifest
     cfg = config(tmp_path)
     source = tmp_path / "clients.csv"
     pd.DataFrame([{"service_id": "bad_setting", "batch_size": "not-an-integer"}]).to_csv(source, index=False)

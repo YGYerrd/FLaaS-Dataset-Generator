@@ -3,11 +3,11 @@
 Both independent services and FedAvg default to `concise` output. Enable full diagnostics with:
 
 ```powershell
-mlaas-generate run-manifest --file outputs/fed_manifest.csv --log-mode debug
+flaas-generate run-manifest --file outputs/fed_manifest.csv --log-mode debug
 ```
 
 Both CLI entry points accept `--log-mode concise|debug`. You can also set `log_mode`
-in a manifest row/defaults or service configuration, or set `$env:MLAAS_LOG_MODE`.
+in a manifest row/defaults or service configuration, or set `$env:FLAAS_LOG_MODE`.
 The CLI option overrides the manifest; the manifest overrides the environment/configuration
 default. Worker processes receive the resolved setting.
 

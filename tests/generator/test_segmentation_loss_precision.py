@@ -3,7 +3,7 @@ import math
 import pytest
 import torch
 
-from mlaas_data_generator.models.adapters.hf_task import ImageSegmentationSpec
+from flaas_data_generator.models.adapters.hf_task import ImageSegmentationSpec
 
 
 def test_dense_half_logits_use_finite_fp32_loss_outside_autocast():
@@ -26,8 +26,8 @@ def test_all_ignored_resized_targets_have_explicit_supervision_error():
 
 @pytest.mark.parametrize("fail", [False, True])
 def test_runtime_memory_metadata_survives_recipe_config_restoration(monkeypatch, fail):
-    from mlaas_data_generator.services.runner import ServiceRunner
-    from mlaas_data_generator.clients import training
+    from flaas_data_generator.services.runner import ServiceRunner
+    from flaas_data_generator.clients import training
     runner = ServiceRunner({"service_id": "metadata-only", "batch_size": 4})
     requested = runner.config
     monkeypatch.setattr(training, "realized_training_recipe", lambda cfg, n: (dict(cfg), None))

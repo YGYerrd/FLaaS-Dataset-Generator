@@ -11,7 +11,7 @@ protocol hashes. See [task capabilities](task-capabilities.md) for named token,
 segmentation and decoded summarisation metrics, capability decisions and evidence.
 Request readers v1–v4 remain available with their existing semantics.
 
-`mlaas-compose validate` executes exactly one composition that was already
+`flaas-compose validate` executes exactly one composition that was already
 selected by the evaluator or by a named search method. It never reruns search,
 changes composition membership, or evaluates the unselected candidate space.
 Classification and regression are supported only when every member is a
@@ -59,7 +59,7 @@ actual quality and single-model inference latency; one-time aggregation cost is
 reported separately.
 
 ```bash
-python -m mlaas_composition validate \
+python -m flaas_composition validate \
   --db outputs/services.db \
   --requests-file outputs/requests.json \
   --evaluation-dir outputs/composition_run \
@@ -72,7 +72,7 @@ python -m mlaas_composition validate \
 To validate a composition selected by an existing search result:
 
 ```bash
-python -m mlaas_composition validate \
+python -m flaas_composition validate \
   --db outputs/services.db \
   --requests-file outputs/requests.json \
   --evaluation-dir outputs/composition_run \

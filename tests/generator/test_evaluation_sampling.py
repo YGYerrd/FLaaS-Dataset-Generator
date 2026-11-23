@@ -2,13 +2,13 @@
 import numpy as np
 import pytest
 
-from mlaas_data_generator.evaluation_sampling import (
+from flaas_data_generator.evaluation_sampling import (
     evaluation_indices,
     evaluation_settings,
     task_benchmark_sample_size,
 )
-from mlaas_data_generator.shared_parent import reserve_evaluation
-from mlaas_data_generator.config import CONFIG
+from flaas_data_generator.shared_parent import reserve_evaluation
+from flaas_data_generator.config import CONFIG
 
 
 @pytest.mark.parametrize("count", [1, 71, 1023, 1024, 1025, 2047, 2048, 2049, 25000])
@@ -41,7 +41,7 @@ def test_invalid_caps_are_rejected(value):
 
 
 def test_none_uses_config_default_and_legacy_cap_alias_still_works(monkeypatch):
-    from mlaas_data_generator.config import CONFIG
+    from flaas_data_generator.config import CONFIG
     monkeypatch.setitem(CONFIG, "benchmark_sample_size", 37)
     assert evaluation_settings({"benchmark_sample_size": None})["benchmark_sample_size"] == 37
     assert evaluation_settings({"max_eval_samples": 23})["benchmark_sample_size"] == 23
@@ -80,8 +80,8 @@ def test_explicit_task_cap_is_not_quartered_again(monkeypatch):
 
 
 def test_old_manifest_cap_is_clamped_before_family_preprocessing(monkeypatch):
-    from mlaas_data_generator.cli.manifest.preparation import contract_config
-    from mlaas_data_generator.data.master_loader import prepare_dataset, PREPROCESSOR_REGISTRY
+    from flaas_data_generator.cli.manifest.preparation import contract_config
+    from flaas_data_generator.data.master_loader import prepare_dataset, PREPROCESSOR_REGISTRY
     monkeypatch.setitem(CONFIG, "benchmark_sample_size", 2048)
     config = {"hf_task": "seq2seq_generation", "benchmark_sample_size": 2048}
     resolved = contract_config(config)
@@ -134,7 +134,7 @@ def test_small_family_uses_entire_pool_after_audit():
 
 
 def test_family_identity_freezes_cap_and_seed_but_not_training_quantity():
-    from mlaas_data_generator.cli.manifest.preparation import group_key
+    from flaas_data_generator.cli.manifest.preparation import group_key
     config = {"dataset": "iris", "model_type": "mlp", "training_regime": "generic"}
     key = group_key(config)
     assert group_key({**config, "sample_size": 8, "sample_seed": 17, "training_seed": 99}) == key
@@ -143,7 +143,7 @@ def test_family_identity_freezes_cap_and_seed_but_not_training_quantity():
 
 
 def test_runner_counts_examples_not_tokens_or_pixels():
-    from mlaas_data_generator.services.runner import _cap_benchmark_split
+    from flaas_data_generator.services.runner import _cap_benchmark_split
     y = np.arange(1500)
     x = {"tokens": np.repeat(y[:, None], 12, axis=1), "images": np.zeros((1500, 8, 8))}
     selected, labels, info = _cap_benchmark_split(x, y, config={"sample_size": 4, "benchmark_sample_size": 1024})
@@ -155,8 +155,8 @@ def test_runner_counts_examples_not_tokens_or_pixels():
 
 def test_generic_and_hf_sources_select_the_same_rows_before_preprocessing(monkeypatch):
     import datasets
-    from mlaas_data_generator.data.master_loader import _select_generic_benchmark
-    from mlaas_data_generator.data.sources.huggingface import load_huggingface_source
+    from flaas_data_generator.data.master_loader import _select_generic_benchmark
+    from flaas_data_generator.data.sources.huggingface import load_huggingface_source
     rows = np.arange(1500)
     raw = datasets.Dataset.from_dict({"text": list(map(str, rows)), "label": (rows % 2).tolist()})
     monkeypatch.setattr(datasets, "load_dataset", lambda *a, **kw: raw)
@@ -173,8 +173,8 @@ def test_generic_and_hf_sources_select_the_same_rows_before_preprocessing(monkey
 
 
 def test_fedavg_manifest_budget_does_not_follow_training_quantity():
-    from mlaas_data_generator.fedavg_manifest import expand_fedavg_run
-    from mlaas_data_generator.provenance import sha256_json
+    from flaas_data_generator.fedavg_manifest import expand_fedavg_run
+    from flaas_data_generator.provenance import sha256_json
     def expand(quantity, **overrides):
         return expand_fedavg_run({"sample_size": quantity, **overrides}, run_index=0,
             clients_per_run=4, rounds=2, participation_rate=1, seed=99,
@@ -192,7 +192,7 @@ def test_fedavg_manifest_budget_does_not_follow_training_quantity():
 
 
 def test_fedavg_builder_forwards_explicit_evaluation_seed(monkeypatch):
-    from mlaas_data_generator.cli.manifest import hf_manifest_builder as builder
+    from flaas_data_generator.cli.manifest import hf_manifest_builder as builder
     monkeypatch.setattr(builder, "_collect_fedavg_run_seed_rows", lambda **kwargs: [{"sample_size": 50}])
     monkeypatch.setattr(builder, "_fedavg_client_knobs_for_row", lambda **kwargs: {})
     frame = builder.build_hf_manifest(generation_mode="fedavg", fedavg_runs=1,

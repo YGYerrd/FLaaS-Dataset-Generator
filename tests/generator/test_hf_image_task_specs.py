@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from mlaas_data_generator.models.adapters.hf_task import (
+from flaas_data_generator.models.adapters.hf_task import (
     ImageClassificationSpec,
     ObjectDetectionSpec,
     ImageSegmentationSpec,

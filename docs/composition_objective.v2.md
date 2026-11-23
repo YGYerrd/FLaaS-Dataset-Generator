@@ -1,7 +1,7 @@
 # Collaborative composition objective v2
 
 `collaborative_objective.v2` is the current surrogate objective implemented by
-`mlaas_composition`. FedAvg produces service observations and provenance; it is
+`flaas_composition`. FedAvg produces service observations and provenance; it is
 never the composition mechanism. Composition remains downstream subset
 selection over completed services.
 

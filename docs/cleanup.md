@@ -12,7 +12,7 @@ shards, the compressed Lambda extract, generated PDF/slide copies, temporary
 tooling, test run directories and local recovery archives.
 
 The active pool-preparation checks formerly imported from the journal audit CLI
-now live in `mlaas_data_generator/artifact_audit.py`. The pool-preparation script
+now live in `flaas_data_generator/artifact_audit.py`. The pool-preparation script
 requires explicit source-root and roster arguments. Reconstruction validation and
 the current optional backend smoke harness remain available.
 

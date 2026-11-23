@@ -2,8 +2,8 @@ from copy import deepcopy
 
 import pytest
 
-from mlaas_data_generator.cli.manifest import preparation
-from mlaas_data_generator.provenance import sha256_json
+from flaas_data_generator.cli.manifest import preparation
+from flaas_data_generator.provenance import sha256_json
 
 
 @pytest.fixture

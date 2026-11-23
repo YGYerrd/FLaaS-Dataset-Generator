@@ -9,7 +9,7 @@ run certifies its recorded model, dataset, runtime and protocol combination.
 ## Inspect capabilities
 
 ```powershell
-python -m mlaas_data_generator.cli.main task-capabilities --task token_classification --backend hf_finetune
+python -m flaas_data_generator.cli.main task-capabilities --task token_classification --backend hf_finetune
 ```
 
 Omit the filters to report the whole matrix. Each capability has its
@@ -67,8 +67,8 @@ inferred into v5. Changed semantics require new artifacts.
 ## Generate and validate v5 requests
 
 ```powershell
-python -m mlaas_composition generate-requests --db outputs/services.db --profile measured_tasks_v5 --compatibility-mode strict --output outputs/task_requests.json
-python -m mlaas_composition evaluate --db outputs/services.db --requests-file outputs/task_requests.json --output-dir outputs/task_search
+python -m flaas_composition generate-requests --db outputs/services.db --profile measured_tasks_v5 --compatibility-mode strict --output outputs/task_requests.json
+python -m flaas_composition evaluate --db outputs/services.db --requests-file outputs/task_requests.json --output-dir outputs/task_search
 ```
 
 Use the existing `validate` command with the selected request and its frozen

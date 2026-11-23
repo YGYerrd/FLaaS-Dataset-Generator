@@ -27,15 +27,15 @@ interpretation.
 | `cli/manifest/preparation.py`, `shared_parent.py`, `provenance.py` | Freeze model/data state and evaluation reservations. Add task semantics and evaluation protocol identities without weakening existing checks. |
 | `clients/partitioning.py`, `clients/training.py`, `clients/policies.py` | Already separate sampling and training policy. Ask the task contract which units, profiles and supervision rules are valid. |
 | `behavioural_diagnostics.py` | Supports classification, aligned tokens and scalar regression. Share prediction alignment and task metrics with composition. |
-| `mlaas_composition/fedavg_validation.py`, `regeneration.py`, `validation.py`, `validation_cli.py` | Restrictions occur in member resolution, reconstruction, prediction shape, target loading, metrics and output reports. All need coordinated changes. |
-| `mlaas_composition/protocol.py`, `pool.py` and protocol assets | Existing request schemas include v1-v4, including independent-family requests. Bind new task contracts and capabilities while retaining old readers. |
+| `flaas_composition/fedavg_validation.py`, `regeneration.py`, `validation.py`, `validation_cli.py` | Restrictions occur in member resolution, reconstruction, prediction shape, target loading, metrics and output reports. All need coordinated changes. |
+| `flaas_composition/protocol.py`, `pool.py` and protocol assets | Existing request schemas include v1-v4, including independent-family requests. Bind new task contracts and capabilities while retaining old readers. |
 
-Paths above are relative to `mlaas_data_generator/` unless explicitly qualified.
+Paths above are relative to `flaas_data_generator/` unless explicitly qualified.
 The core parameter aggregator in `fedavg_aggregation.py` remains shared.
 
 ## 2. Workstream A: explicit capabilities
 
-Introduce `mlaas_data_generator/task_capabilities.py` with a small typed registry
+Introduce `flaas_data_generator/task_capabilities.py` with a small typed registry
 and resolver. Keep capability declarations separate from eligibility checks on a
 particular model, dataset, request or checkpoint.
 
@@ -93,7 +93,7 @@ failures.
 
 ## 3. Workstream B: versioned task contracts
 
-Create a small `mlaas_data_generator/tasks/` package containing shared contract
+Create a small `flaas_data_generator/tasks/` package containing shared contract
 types, resolution and task-specific protocol implementations. Keep
 `task_contract.py` as a compatibility facade for existing callers. This is an
 internal interface, with the current HF adapters providing backend execution.

@@ -48,7 +48,7 @@ Round duration still includes aggregation and shared run/round work.
 ### Checkpoint substeps
 
 New executions persist `checkpoint_profile` with format
-`mlaas-checkpoint-profile-v1` in `service_generation_provenance.provenance_json`.
+`flaas-checkpoint-profile-v1` in `service_generation_provenance.provenance_json`.
 If checkpoint work fails, completed and failed spans are retained in the failed
 service's metadata. Each observed step records `calls`, `failed_calls`,
 `inclusive_s` and `exclusive_s`. These are monotonic host elapsed times, including
@@ -106,7 +106,7 @@ The replay command and an observed BERT breakdown are documented in
   batch order, labels, padding, and the selected training recipe. GPU encoding
   stays on the calling thread. Readers are joined before returning on completion,
   timeout, or failure so the image cache can be closed safely. In-memory inputs
-  retain synchronous batching. Set `MLAAS_PREFETCH_BATCHES=0` to disable lookahead,
+  retain synchronous batching. Set `FLAAS_PREFETCH_BATCHES=0` to disable lookahead,
   or choose a depth from 1 to 8 (default 2). Extra host memory is bounded by that
   many prepared batches, plus the current batch and temporary read buffers.
 

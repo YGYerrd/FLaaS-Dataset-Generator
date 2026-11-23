@@ -5,15 +5,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import mlaas_data_generator.cli.run_manifest as run_manifest_module
-from mlaas_data_generator.services import runner as service_runner_module
-from mlaas_data_generator.cli.manifest.hf_manifest_builder import (
+import flaas_data_generator.cli.run_manifest as run_manifest_module
+from flaas_data_generator.services import runner as service_runner_module
+from flaas_data_generator.cli.manifest.hf_manifest_builder import (
     MANIFEST_COLUMNS,
     _batch_sizes_for,
     build_hf_manifest,
 )
-from mlaas_data_generator.cli.run_manifest import _resolve_row, _validate_row, run_manifest
-from mlaas_data_generator.services.runner import ServiceExecutionResult
+from flaas_data_generator.cli.run_manifest import _resolve_row, _validate_row, run_manifest
+from flaas_data_generator.services.runner import ServiceExecutionResult
 
 
 def test_fedavg_manifest_execution_uses_callable_lazy_dataset_loader(monkeypatch):
@@ -317,7 +317,7 @@ def test_manifest_text2text_inference_honours_explicit_evaluation_budget():
     assert set(t5_base["max_eval_time_s"]) == {240}
     assert set(t5_small["max_eval_time_s"]) == {240}
     assert "max_samples" not in df.columns
-    from mlaas_data_generator.config import CONFIG
+    from flaas_data_generator.config import CONFIG
     assert set(t5_base["benchmark_sample_size"]) == set(t5_small["benchmark_sample_size"]) == {CONFIG["benchmark_sample_size"] // 4}
     assert {
         json.loads(payload)["benchmark_sample_size"]
@@ -411,7 +411,7 @@ def test_run_manifest_skips_service_id_already_in_database(monkeypatch, tmp_path
     def fail_if_executed(config):
         raise AssertionError(f"existing service was executed: {config['service_id']}")
 
-    from mlaas_data_generator.cli.manifest import preparation
+    from flaas_data_generator.cli.manifest import preparation
     def fail_if_prepared(*args, **kwargs):
         raise AssertionError("completed service must skip before checkpoint preparation or verification")
     for name in ("bind_manifest", "verify_completed", "freeze_manifest_revisions"):
@@ -536,7 +536,7 @@ def test_run_manifest_can_explicitly_rerun_existing_service(monkeypatch, tmp_pat
             }
         ]
     ).to_csv(manifest, index=False)
-    from mlaas_data_generator.storage.writer import SQLiteWriter
+    from flaas_data_generator.storage.writer import SQLiteWriter
     writer = SQLiteWriter(str(db_path))
     writer.start()
     writer.write_service({"service_id": "svc_existing", "status": "completed"})
