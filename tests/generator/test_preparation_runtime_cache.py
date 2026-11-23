@@ -1,10 +1,10 @@
 import pytest
 
-from mlaas_data_generator.data.runtime_cache import cached_preparation, preparation_cache_scope
+from flaas_data_generator.data.runtime_cache import cached_preparation, preparation_cache_scope
 
 
 def test_cache_is_scoped_bounded_and_does_not_retain_failures(monkeypatch):
-    from mlaas_data_generator.data import runtime_cache
+    from flaas_data_generator.data import runtime_cache
     monkeypatch.setitem(runtime_cache._LIMITS, "dataset", 2)
     loads = []
     def get(key):
@@ -26,7 +26,7 @@ def test_cache_is_scoped_bounded_and_does_not_retain_failures(monkeypatch):
 
 def test_raw_split_reuse_preserves_recipe_sampling_revisions_and_formats(monkeypatch):
     import datasets
-    from mlaas_data_generator.data.sources.huggingface import load_huggingface_source
+    from flaas_data_generator.data.sources.huggingface import load_huggingface_source
     calls = []
     raw = datasets.Dataset.from_dict({"text": [str(i) for i in range(40)], "label": [i % 2 for i in range(40)]})
     def load(name, config, *, split, **kwargs):
@@ -61,7 +61,7 @@ def test_raw_split_reuse_preserves_recipe_sampling_revisions_and_formats(monkeyp
 
 
 def test_generation_tokenizer_reuse_does_not_leak_padding_policy(monkeypatch):
-    from mlaas_data_generator.data.preprocessors import hf_text_generation as generation
+    from flaas_data_generator.data.preprocessors import hf_text_generation as generation
     from tests.generator.test_hf_generation_preprocessors import FakeTokenizer
     calls = []
     monkeypatch.setattr(generation, "_load_auto_tokenizer_uncached",

@@ -37,20 +37,19 @@ Use a prepared pool directory containing `pools.csv`, `services.csv`, and
 `services.db` to select compositions of **2, 3, 5, 7, and 10 services**:
 
 ```powershell
-mlaas-compose generate-manifest `
+flaas-compose generate-manifest `
   --prepared-dir outputs/pooled `
   --compositions 1000 `
   --seed 42 `
   --output outputs/pooled/composition_manifest.csv
 ```
 
-From a source checkout, replace `mlaas-compose` with
-`.\.venv\Scripts\python.exe -m mlaas_composition`.
+From a source checkout, replace `flaas-compose` with
+`.\.venv\Scripts\python.exe -m flaas_composition`.
 `--compositions` is a required positive approximate total; the seed defaults to
 42. Every eligible family/size pair receives the same quota: the requested total
 divided by the pair count, rounded to the nearest integer (halves round up), with
-a minimum of one. The current 70 pools give 350 pairs, so requesting 1,000 yields
-1,050 compositions, and requesting fewer than 350 still yields at least 350.
+a minimum of one.
 For a different prepared dataset, pairs lacking enough eligible services are
 skipped. Quotas are capped at the number of unique combinations and sampling
 attempts are bounded; any shortfall is reported without redistribution.
@@ -88,7 +87,7 @@ and 5 and adds a frozen availability schedule and deadline baseline. See
 Run the generated CSV directly with one complete composition per GPU worker:
 
 ```powershell
-python -m mlaas_composition run-manifest `
+python -m flaas_composition run-manifest `
   --file outputs/pooled/composition_manifest.csv `
   --source-db outputs/pooled/services.db `
   --db outputs/compositions.db `
@@ -224,7 +223,7 @@ $pythonExe = '.\.venv\Scripts\python.exe'
 $db = 'outputs\your_family\services.db'
 $run = 'outputs\recipe_composition_01'
 
-& $pythonExe -m mlaas_composition list-families --db $db --output "$run\family_services.csv"
+& $pythonExe -m flaas_composition list-families --db $db --output "$run\family_services.csv"
 ```
 
 Copy the desired `family_id` from that output. `eligible_services` must be at
@@ -237,12 +236,12 @@ verifies independently.
 ```powershell
 $familyId = 'family_REPLACE_WITH_THE_REPORTED_HASH'
 
-& $pythonExe -m mlaas_composition generate-requests `
+& $pythonExe -m flaas_composition generate-requests `
   --db $db --family-id $familyId `
   --profile recipe_composition_v6 --compatibility-mode strict `
   --requests 1 --seed 42 --output "$run\requests.json"
 
-& $pythonExe -m mlaas_composition evaluate `
+& $pythonExe -m flaas_composition evaluate `
   --db $db --requests-file "$run\requests.json" `
   --output-dir "$run\search" --search-budget 100 `
   --reference-max-candidates 10000 --seed 42
@@ -258,7 +257,7 @@ specified limit; it is not a measured global optimum.
 Reconstruct and evaluate all four frozen selections:
 
 ```powershell
-& $pythonExe -m mlaas_composition validate-search `
+& $pythonExe -m flaas_composition validate-search `
   --db $db --requests-file "$run\requests.json" `
   --evaluation-dir "$run\search" --output-dir "$run\validation" `
   --device cpu
@@ -277,7 +276,7 @@ the same member again. No persistent reconstructed-client cache is created.
 To validate just one selected method instead:
 
 ```powershell
-& $pythonExe -m mlaas_composition validate `
+& $pythonExe -m flaas_composition validate `
   --db $db --requests-file "$run\requests.json" `
   --evaluation-dir "$run\search" --request-id req_000000 `
   --selection-source search --search-method greedy `

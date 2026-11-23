@@ -5,8 +5,8 @@ import struct
 import numpy as np
 import pytest
 
-from mlaas_data_generator import checkpoint_store as checkpoint_store_module
-from mlaas_data_generator.checkpoint_store import (
+from flaas_data_generator import checkpoint_store as checkpoint_store_module
+from flaas_data_generator.checkpoint_store import (
     CompressionSpec,
     ContentAddressedTensorStore,
     IntegrityError,
@@ -76,7 +76,6 @@ def test_canonical_tensor_state_has_a_golden_hash_and_round_trips():
     )
     payload = serialize_tensor_state(state)
 
-    assert payload.startswith(b"MLAAS-TENSOR-STATE-V1\0")
     assert hashlib.sha256(payload).hexdigest() == "4120ef4f7129a9ccc5beabead5dc29e3a775ef8c9ec8c5255cacf997bd6a3569"
     assert deserialize_tensor_state(payload).entries == state.entries
 

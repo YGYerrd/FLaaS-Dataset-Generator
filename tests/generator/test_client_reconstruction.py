@@ -6,10 +6,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from mlaas_data_generator.cli.manifest import preparation
-from mlaas_data_generator.data import master_loader
-from mlaas_data_generator.data.tokenization_selection import training_row_selection
-from mlaas_data_generator.client_reconstruction import persist_recipe, read_recipe
+from flaas_data_generator.cli.manifest import preparation
+from flaas_data_generator.data import master_loader
+from flaas_data_generator.data.tokenization_selection import training_row_selection
+from flaas_data_generator.client_reconstruction import persist_recipe, read_recipe
 from tests.generator.test_service_runner import DummyModel
 
 
@@ -53,7 +53,7 @@ def test_family_reuses_fitted_state_and_identity_for_different_clients(raw_famil
 
 
 def test_prepare_reuses_relocated_frozen_family(raw_family, tmp_path):
-    from mlaas_data_generator.artifact_paths import artifact_path_scope
+    from flaas_data_generator.artifact_paths import artifact_path_scope
     cfg, model, _ = raw_family
     original, relocated = tmp_path / "original", tmp_path / "relocated"
     cfg = {**cfg, "provenance_artifact_dir": str(original)}
@@ -71,7 +71,7 @@ def test_prepare_reuses_relocated_frozen_family(raw_family, tmp_path):
 
 def test_recorded_rows_bypass_sampler_and_preserve_order(raw_family, monkeypatch):
     cfg, _, x = raw_family
-    monkeypatch.setattr("mlaas_data_generator.clients.partitioning.client_partition",
+    monkeypatch.setattr("flaas_data_generator.clients.partitioning.client_partition",
                         lambda *a, **k: pytest.fail("reconstruction must not resample"))
     config = {**cfg, "_recorded_source_ids": ["train:43", "train:9", "train:100"]}
     with training_row_selection([config]) as selection:
@@ -158,8 +158,8 @@ def test_recipe_records_effective_settings_memory_and_integrity(raw_family):
 
 
 def test_dynamic_padding_width_is_not_family_preprocessing_identity():
-    from mlaas_data_generator.provenance import preprocessing_metadata
-    from mlaas_data_generator.data.source_contract import prepared_fingerprint
+    from flaas_data_generator.provenance import preprocessing_metadata
+    from flaas_data_generator.data.source_contract import prepared_fingerprint
     meta = {"dynamic_padding": True, "input_shape": (2,), "ignore_index": -100}
     assert preprocessing_metadata(meta) == preprocessing_metadata({**meta, "input_shape": (8,)})
     short = ({"input_ids": np.array([[3, 4]]), "attention_mask": np.array([[1, 1]])}, np.array([[9, 8]]))
@@ -176,7 +176,7 @@ def test_family_lookup_uses_resolved_hf_task_semantics():
 
 
 def test_masking_survives_regrouping_and_dynamic_padding():
-    from mlaas_data_generator.data.preprocessors.hf_text_fill_mask import _source_mlm_labels
+    from flaas_data_generator.data.preprocessors.hf_text_fill_mask import _source_mlm_labels
     tokenizer = SimpleNamespace(mask_token_id=99, vocab_size=100)
     enc = {"input_ids": np.array([[5, 6, 7, 0], [10, 11, 0, 0]]),
            "attention_mask": np.array([[1, 1, 1, 0], [1, 1, 0, 0]])}

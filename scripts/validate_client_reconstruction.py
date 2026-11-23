@@ -23,9 +23,9 @@ TASK_PROFILES = {
 def task_configurations(root, device, profiles=None):
     """Small real-backend cohorts using the normal raw-source loader."""
     from huggingface_hub.constants import HF_HUB_CACHE
-    from mlaas_data_generator.config import CONFIG
-    from mlaas_data_generator.registry.datasets import DATASET_REGISTRY
-    from mlaas_data_generator.services.taxonomy import canonical_task_family
+    from flaas_data_generator.config import CONFIG
+    from flaas_data_generator.registry.datasets import DATASET_REGISTRY
+    from flaas_data_generator.services.taxonomy import canonical_task_family
     rows = []
     def revision(kind, name):
         return (Path(HF_HUB_CACHE) / (kind + "--" + name.replace("/", "--")) / "refs/main").read_text().strip()
@@ -66,7 +66,7 @@ def task_configurations(root, device, profiles=None):
 
 
 def configurations(root, suite, device):
-    from mlaas_data_generator.config import CONFIG
+    from flaas_data_generator.config import CONFIG
     families = [
         {"dataset": "digits", "model_type": "mlp", "hidden_layers": [32], "dropout": 0.1, "sample_size": 240},
         {"dataset": "wine", "model_type": "logreg", "sample_size": 96},
@@ -134,8 +134,8 @@ def metrics_snapshot(db):
 
 def reusable_comparison(summary, recipe, *, reference_id, device, tolerances):
     """Reuse only an intact, passing report for this exact recipe and gate."""
-    from mlaas_data_generator.provenance import sha256_file
-    from mlaas_data_generator.client_reconstruction import DEFAULT_TOLERANCES
+    from flaas_data_generator.provenance import sha256_file
+    from flaas_data_generator.client_reconstruction import DEFAULT_TOLERANCES
     path = Path(summary["report_ref"])
     if sha256_file(path) != path.stem:
         raise ValueError("cached comparison failed content-address verification")
@@ -173,7 +173,7 @@ def main():
     if args.reuse_comparisons and not args.resume_generation:
         parser.error("--reuse-comparisons requires --resume-generation")
     if args.worker_service:
-        from mlaas_data_generator.client_reconstruction import compare_reconstruction
+        from flaas_data_generator.client_reconstruction import compare_reconstruction
         report, artifact = compare_reconstruction(args.db, args.worker_service, output_dir=args.output_dir,
             device=args.device, reference_service_id=args.reference_service,
             fresh_process=True,
@@ -199,8 +199,8 @@ def main():
     else:
         if db.exists() and not args.resume_generation:
             raise ValueError("use a new output directory to keep references immutable")
-        from mlaas_data_generator.cli.manifest.preparation import execute_entries, group_key, verify_completed
-        from mlaas_data_generator.cli.run_manifest import ManifestEntry, RowValidation
+        from flaas_data_generator.cli.manifest.preparation import execute_entries, group_key, verify_completed
+        from flaas_data_generator.cli.run_manifest import ManifestEntry, RowValidation
         rows = (task_configurations(root, args.device, args.task_profile) if args.suite == "tasks"
                 else configurations(root, args.suite, args.device))[:args.limit]
         config_path = root / "configurations.json"
@@ -251,7 +251,7 @@ def main():
     summary()
     for index, (sid, reference) in enumerate(services):
         if sid in prior_reports:
-            from mlaas_data_generator.client_reconstruction import read_recipe
+            from flaas_data_generator.client_reconstruction import read_recipe
             if reusable_comparison(prior_reports[sid], read_recipe(db, sid), reference_id=reference or sid,
                                    device=args.device, tolerances=json.loads(args.tolerances) if args.tolerances else {}):
                 reports.append(prior_reports[sid])

@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 from datasets import Dataset
 
-from mlaas_data_generator.data.preprocessors.hf import preprocess_hf
-from mlaas_data_generator.data.tokenization_selection import training_row_selection
-from mlaas_data_generator.services.runner import ServiceRunner
+from flaas_data_generator.data.preprocessors.hf import preprocess_hf
+from flaas_data_generator.data.tokenization_selection import training_row_selection
+from flaas_data_generator.services.runner import ServiceRunner
 
 
 class RecordingTokenizer:
@@ -30,7 +30,7 @@ class RecordingTokenizer:
 
 @pytest.fixture
 def tokenizer(monkeypatch):
-    from mlaas_data_generator.data.preprocessors import hf_text_sequence
+    from flaas_data_generator.data.preprocessors import hf_text_sequence
     tokenizer = RecordingTokenizer()
     monkeypatch.setattr(hf_text_sequence, "get_cached_tokenizer", lambda **kwargs: (tokenizer, None, None))
     monkeypatch.setitem(sys.modules, "transformers", SimpleNamespace(
@@ -95,7 +95,7 @@ def test_selection_before_tokenization_preserves_shared_labels(tokenizer, strate
 
 
 def test_iid_and_saved_uniform_profile_skip_axis_resolution(monkeypatch):
-    from mlaas_data_generator.clients import partitioning
+    from flaas_data_generator.clients import partitioning
     monkeypatch.setattr(partitioning, "resolve_skew_axis", lambda *a, **k: pytest.fail("IID must not inspect an axis"))
     for strategy, quantity in (("iid", 1000), ("quantity_skew", 37)):
         cfg = config(strategy=strategy, task="causal_lm_generation", sample_size=quantity,
@@ -110,7 +110,7 @@ def test_iid_and_saved_uniform_profile_skip_axis_resolution(monkeypatch):
 
 @pytest.mark.parametrize("strategy", ["dirichlet", "shard"])
 def test_skew_requires_an_explicit_available_axis(strategy):
-    from mlaas_data_generator.clients.partitioning import client_partition
+    from flaas_data_generator.clients.partitioning import client_partition
     cfg = config(strategy=strategy, skew_axis=None)
     with pytest.raises(ValueError, match="explicit skew_axis"):
         with training_row_selection([cfg]):
@@ -121,7 +121,7 @@ def test_skew_requires_an_explicit_available_axis(strategy):
 
 
 def generation_fixture(monkeypatch, *, count=203037, invalid=(), dynamic=False):
-    from mlaas_data_generator.data.preprocessors import hf_text_generation as generation
+    from flaas_data_generator.data.preprocessors import hf_text_generation as generation
     from tests.generator.test_hf_generation_preprocessors import FakeTokenizer
     class Tokenizer(FakeTokenizer):
         def __init__(self):
@@ -191,7 +191,7 @@ def test_group_union_and_replacements_are_prepared_once(monkeypatch):
 
 
 def fill_mask_fixture(monkeypatch, *, count, invalid=()):
-    from mlaas_data_generator.data.preprocessors import hf_text_fill_mask
+    from flaas_data_generator.data.preprocessors import hf_text_fill_mask
     from tests.generator.test_hf_fill_mask_memory import Tokenizer
 
     class RecordingMaskTokenizer(Tokenizer):
@@ -260,7 +260,7 @@ def test_fill_mask_large_pool_prepares_only_group_union_and_replacements(monkeyp
 @pytest.mark.parametrize("strategy", ["dirichlet", "shard"])
 @pytest.mark.parametrize("grouped", [False, True])
 def test_masked_token_skew_fails_before_loading_or_tokenizing(monkeypatch, strategy, grouped):
-    from mlaas_data_generator.data.tokenization_selection import active_selection
+    from flaas_data_generator.data.tokenization_selection import active_selection
 
     tokenizer, _ = fill_mask_fixture(monkeypatch, count=100)
     cfg = config(task="fill_mask", strategy=strategy, skew_axis="masked_token_id")
@@ -297,7 +297,7 @@ def test_replacement_dynamic_padding_and_evaluation_stay_consistent(monkeypatch)
 
 
 def test_image_decoding_replacement_tracks_original_source_ids(monkeypatch):
-    from mlaas_data_generator.data.preprocessors import hf_image
+    from flaas_data_generator.data.preprocessors import hf_image
     calls = []
     class ImageProcessor:
         def __call__(self, image, **kwargs):
@@ -322,7 +322,7 @@ def test_image_decoding_replacement_tracks_original_source_ids(monkeypatch):
 
 
 def test_raw_load_and_generic_preparation_are_separate(monkeypatch):
-    from mlaas_data_generator.data import master_loader
+    from flaas_data_generator.data import master_loader
     x, y = np.arange(100).reshape(50, 2), np.arange(50) % 2
     monkeypatch.setattr(master_loader, "load_sklearn_source", lambda *a, **k: ((x, y), (x[:4], y[:4]), {"task_type": "classification"}))
     seen = []
@@ -337,7 +337,7 @@ def test_raw_load_and_generic_preparation_are_separate(monkeypatch):
 
 
 def test_loader_selects_before_calling_generation_preprocessor(monkeypatch):
-    from mlaas_data_generator.data import master_loader
+    from flaas_data_generator.data import master_loader
     raw = Dataset.from_dict({"article": ["raw source"] * 203037})
     monkeypatch.setattr(master_loader, "load_huggingface_source", lambda **k:
         ((raw, None), (raw.select([0, 1]), None), {"hf_task": "causal_lm_generation"}))
@@ -371,9 +371,9 @@ def test_scope_is_reset_after_failure(tokenizer):
 def test_saved_family_execution_prepares_selected_union_and_retains_checkpoints(tokenizer, monkeypatch, tmp_path):
     import json
     import sqlite3
-    from mlaas_data_generator.cli.manifest import preparation
-    from mlaas_data_generator.cli import run_manifest as manifest
-    from mlaas_data_generator.services import runner
+    from flaas_data_generator.cli.manifest import preparation
+    from flaas_data_generator.cli import run_manifest as manifest
+    from flaas_data_generator.services import runner
     from tests.generator.test_service_runner import DummyModel
 
     model = DummyModel()
@@ -418,8 +418,8 @@ def test_saved_family_execution_prepares_selected_union_and_retains_checkpoints(
 
 @pytest.mark.parametrize("grouped", [False, True])
 def test_execution_trains_selected_rows_without_sampling_twice(tokenizer, monkeypatch, tmp_path, grouped):
-    from mlaas_data_generator.services import runner
-    from mlaas_data_generator.cli import run_manifest as manifest
+    from flaas_data_generator.services import runner
+    from flaas_data_generator.cli import run_manifest as manifest
     from tests.generator.test_service_runner import DummyModel
     ds = dataset()
     configs = [config(seed=s, model_type="mlp", training_regime="generic", db_path=str(tmp_path / "services.db"),

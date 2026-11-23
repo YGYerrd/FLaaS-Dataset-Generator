@@ -2,9 +2,9 @@ import json
 import pandas as pd
 import pytest
 
-from mlaas_composition.requirements import generate_service_requests
-from mlaas_composition.protocol import validate_request_frame, read_request_file, write_request_file
-from mlaas_composition.pool import build_composition_instance, ProvenanceIntegrityError
+from flaas_composition.requirements import generate_service_requests
+from flaas_composition.protocol import validate_request_frame, read_request_file, write_request_file
+from flaas_composition.pool import build_composition_instance, ProvenanceIntegrityError
 
 
 def services():

@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.models.adapters.hf_task import Seq2SeqGenerationSpec
+from flaas_data_generator.models.adapters.hf_task import Seq2SeqGenerationSpec
 from tests.generator.test_hf_training_precision import tiny_core
 from tests.generator.test_task_runtime import Decoder, Tokenizer, fixture
 

@@ -4,10 +4,10 @@ import json
 import numpy as np
 import pytest
 
-from mlaas_composition.catalogue import load_services_from_db
-from mlaas_data_generator.cli.manifest import hf_manifest_builder as builder
-from mlaas_data_generator.services import runner
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_composition.catalogue import load_services_from_db
+from flaas_data_generator.cli.manifest import hf_manifest_builder as builder
+from flaas_data_generator.services import runner
+from flaas_data_generator.storage.writer import make_writer
 
 
 def test_flat_null_scores_clear_stale_catalogue_measurements(tmp_path):

@@ -3,13 +3,13 @@ import sqlite3
 
 import pytest
 
-from mlaas_data_generator.config import CONFIG
-from mlaas_data_generator.evaluation_protocol import PROTOCOL_VERSION, BENCHMARK_PROTOCOL_VERSION, resolve_evaluation_plan
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_data_generator.config import CONFIG
+from flaas_data_generator.evaluation_protocol import PROTOCOL_VERSION, BENCHMARK_PROTOCOL_VERSION, resolve_evaluation_plan
+from flaas_data_generator.storage.writer import make_writer
 
 
 def test_public_dispatch_labels_disabled_and_legacy_results():
-    from mlaas_data_generator.services.perturbation import run_perturbation_stage
+    from flaas_data_generator.services.perturbation import run_perturbation_stage
     assert run_perturbation_stage(None, [])["evaluation_protocol_version"] == BENCHMARK_PROTOCOL_VERSION
     legacy = run_perturbation_stage(None, [], config={"evaluation_protocol_version": "legacy_perturbation_v1"})
     assert legacy["evaluation_protocol_version"] == "legacy_perturbation_v1"
@@ -18,7 +18,7 @@ def test_public_dispatch_labels_disabled_and_legacy_results():
 
 
 def test_manifest_pilot_has_distinct_service_identity_and_same_training_recipe():
-    from mlaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
+    from flaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
     options = dict(task_keys=["text_classification"], models_per_task=1, datasets_per_model=1,
         clients_per_family=1, training_regimes=["finetune_transfer"], seed=123)
     diagnostic = build_hf_manifest(**options, metric_evaluation_profile="diagnostic")
@@ -60,7 +60,7 @@ def test_benchmark_defaults_and_stage_floor_overrides():
 
 def test_resume_preset_overrides_frozen_budgets_and_preserves_training_identity():
     import pandas as pd
-    from mlaas_data_generator.cli.run_manifest import _resolve_execution_row
+    from flaas_data_generator.cli.run_manifest import _resolve_execution_row
     row = pd.Series({"service_id": "existing", "sample_seed": 19, "training_seed": 20,
         "evaluation_seed": 21, "trust_trials": 99, "trust_min_independent_inputs": 999,
         "metric_evaluation_min_coverage": .95, "explanation_replacement_methods": ["empirical", "mean"],
@@ -85,8 +85,8 @@ def test_resume_preset_overrides_frozen_budgets_and_preserves_training_identity(
 @pytest.mark.parametrize("before_protocol_fields_existed", [False, True])
 def test_manifest_binding_is_disposable_and_does_not_restrict_later_invocations(tmp_path, before_protocol_fields_existed):
     import pandas as pd
-    from mlaas_data_generator.cli.run_manifest import _resolve_execution_row
-    from mlaas_data_generator.cli.manifest.preparation import bind_manifest, freeze_manifest_revisions, group_key
+    from flaas_data_generator.cli.run_manifest import _resolve_execution_row
+    from flaas_data_generator.cli.manifest.preparation import bind_manifest, freeze_manifest_revisions, group_key
     old = {**CONFIG, "evaluation_protocol_version": PROTOCOL_VERSION,
         "metric_evaluation_profile": "diagnostic", "enable_perturbation_metrics": False}
     if before_protocol_fields_existed:
@@ -142,7 +142,7 @@ def test_compressed_evaluation_evidence_is_content_addressed_and_checked(tmp_pat
     import gzip
     import hashlib
     from pathlib import Path
-    from mlaas_data_generator.services.evaluation_artifacts import persist_evaluation_evidence
+    from flaas_data_generator.services.evaluation_artifacts import persist_evaluation_evidence
     values = {"evaluation_protocol_version": PROTOCOL_VERSION, "trust_score": None, "trust_status": "unsupported"}
     samples = [{"sample_index": 1, "trials": [{"status": "excluded"}] * 100}]
     artifact = persist_evaluation_evidence(tmp_path, values, samples)

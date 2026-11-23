@@ -1,6 +1,6 @@
 import pytest
 
-from mlaas_data_generator.terminal import print_service_summary
+from flaas_data_generator.terminal import print_service_summary
 
 
 @pytest.mark.parametrize("wrapped", [False, True])

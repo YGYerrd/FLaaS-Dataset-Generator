@@ -4,15 +4,15 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_data_generator.task_contract import resolve_sentence_pair_contract
-from mlaas_data_generator.services.taxonomy import canonical_task_family, canonical_metric_names
-from mlaas_data_generator.models.adapters.hf_adapter import build_task_spec
-from mlaas_data_generator.models.adapters.hf_core import HFCore
-from mlaas_data_generator.clients import recipes, training
-from mlaas_data_generator.clients.capacity import CAPACITY_POLICY, known_training_capacity
-from mlaas_data_generator.clients.partitioning import client_partition, PARTITION_VERSION
-from mlaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
-from mlaas_data_generator.precision_policy import FP32_REASON
+from flaas_data_generator.task_contract import resolve_sentence_pair_contract
+from flaas_data_generator.services.taxonomy import canonical_task_family, canonical_metric_names
+from flaas_data_generator.models.adapters.hf_adapter import build_task_spec
+from flaas_data_generator.models.adapters.hf_core import HFCore
+from flaas_data_generator.clients import recipes, training
+from flaas_data_generator.clients.capacity import CAPACITY_POLICY, known_training_capacity
+from flaas_data_generator.clients.partitioning import client_partition, PARTITION_VERSION
+from flaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
+from flaas_data_generator.precision_policy import FP32_REASON
 
 
 @pytest.mark.parametrize("subset", ["mrpc", "wnli", "stsb"])
@@ -56,7 +56,7 @@ def test_disagreement_with_loaded_label_schema_is_rejected_before_model_build():
 
 def test_pair_classlabel_indices_preserve_dataset_meaning_and_missing_train_classes():
     from datasets import ClassLabel
-    from mlaas_data_generator.data.preprocessors.hf_text_similarity import _encode_categorical_targets
+    from flaas_data_generator.data.preprocessors.hf_text_similarity import _encode_categorical_targets
     feature = ClassLabel(names=["not_equivalent", "equivalent"])
     train, test, count, mapping = _encode_categorical_targets([1, 1], [0, 1], feature)
     assert train.tolist() == [1, 1] and test.tolist() == [0, 1]
@@ -146,7 +146,7 @@ def test_realized_training_adjusts_work_without_mutating_frozen_recipe():
 
 
 def test_runner_uses_adjusted_training_budget_and_retains_requested_config(tmp_path, monkeypatch):
-    from mlaas_data_generator.services.runner import ServiceRunner
+    from flaas_data_generator.services.runner import ServiceRunner
     policy = training.build_training_policy({"config": {"training_regime": "generic", "model_type": "mlp", "task_type": "regression"}})
     row = recipes.sample_client_recipes(policy, count=1, seed="runtime-capacity", average_samples=1500)[0]
     instance = ServiceRunner({**row, "model_type": "mlp", "service_id": "adjusted", "db_path": str(tmp_path / "services.db")})

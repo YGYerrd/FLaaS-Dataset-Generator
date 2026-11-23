@@ -4,11 +4,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mlaas_composition.catalogue import load_services_from_db, normalise_service_rows
-from mlaas_composition.pool import build_composition_instance
-from mlaas_composition.requirements import generate_service_requests
-from mlaas_composition.sampler import calculate_constraint_penalty, calculate_utility, evaluate_provisional_composition
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_composition.catalogue import load_services_from_db, normalise_service_rows
+from flaas_composition.pool import build_composition_instance
+from flaas_composition.requirements import generate_service_requests
+from flaas_composition.sampler import calculate_constraint_penalty, calculate_utility, evaluate_provisional_composition
+from flaas_data_generator.storage.writer import make_writer
 
 
 def service(service_id="measured", **overrides):

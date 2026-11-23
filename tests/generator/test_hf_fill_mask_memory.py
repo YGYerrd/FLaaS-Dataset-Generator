@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_data_generator.data.preprocessors import hf_text_fill_mask as module
+from flaas_data_generator.data.preprocessors import hf_text_fill_mask as module
 
 
 class SliceOnlyDataset:

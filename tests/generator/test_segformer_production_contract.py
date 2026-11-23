@@ -5,15 +5,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mlaas_data_generator.segmentation_policy import (
+from flaas_data_generator.segmentation_policy import (
     ADE20K_MINI, ADE20K_MINI_LABELS, validate_ade20k_mini_preparation,
 )
-from mlaas_data_generator.precision_policy import (
+from flaas_data_generator.precision_policy import (
     apply_precision_policy, SEGFORMER_MINI_FP32_REASON,
 )
-from mlaas_data_generator.cli.manifest import preparation
-from mlaas_data_generator.cli.run_manifest import _resolve_row
-from mlaas_data_generator.provenance import label_semantics, sha256_json
+from flaas_data_generator.cli.manifest import preparation
+from flaas_data_generator.cli.run_manifest import _resolve_row
+from flaas_data_generator.provenance import label_semantics, sha256_json
 
 MODEL = "nvidia/segformer-b0-finetuned-ade-512-512"
 
@@ -35,7 +35,7 @@ def metadata():
 
 
 def test_generated_manifest_and_resolved_legacy_rows_freeze_reviewed_settings():
-    from mlaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
+    from flaas_data_generator.cli.manifest.hf_manifest_builder import build_hf_manifest
     frame = build_hf_manifest(task_keys=["image_segmentation"], models_per_task=20,
                               clients_per_family=4, average_samples=600, seed=42)
     selected = frame[(frame.hf_model_id == MODEL) & (frame.dataset_name == ADE20K_MINI)]
@@ -70,7 +70,7 @@ def test_fp32_policy_is_scoped_to_segformer_on_mini(dataset, model):
 
 @pytest.mark.parametrize("change", ["count", "mapping", "reduction"])
 def test_legacy_frozen_labels_are_rejected_before_loading(monkeypatch, tmp_path, change):
-    from mlaas_data_generator.services import runner
+    from flaas_data_generator.services import runner
     doc = {"config": config(), "contracts": {"labels": label_semantics(metadata())}}
     validate_ade20k_mini_preparation(doc)
     labels = doc["contracts"]["labels"]
@@ -95,8 +95,8 @@ def test_legacy_frozen_labels_are_rejected_before_loading(monkeypatch, tmp_path,
 
 
 def test_legacy_loaded_metadata_cannot_build_a_150_label_production_model(monkeypatch):
-    from mlaas_data_generator.models.builders import create_model
-    from mlaas_data_generator.models.adapters import hf_adapter
+    from flaas_data_generator.models.builders import create_model
+    from flaas_data_generator.models.adapters import hf_adapter
     def no_model(**kwargs):
         pytest.fail("legacy metadata reached model construction")
     monkeypatch.setattr(hf_adapter, "TransformersTextFineTuneAdapter", no_model)
@@ -109,11 +109,11 @@ def test_local_segformer_initial_eval_train_and_checkpoint_reload(tmp_path, requ
     """Use real Transformers processors/model/serialization, with tiny random weights."""
     import torch
     import transformers
-    from mlaas_data_generator.data.preprocessors.hf_image import preprocess_hf_image
-    from mlaas_data_generator.models.builders import create_model
-    from mlaas_data_generator.tasks.contracts import resolve_task_contract
-    from mlaas_data_generator.tasks.runtime import evaluate_task_model
-    from mlaas_data_generator.checkpoint_store import capture_model_tensor_state, restore_model_tensor_state
+    from flaas_data_generator.data.preprocessors.hf_image import preprocess_hf_image
+    from flaas_data_generator.models.builders import create_model
+    from flaas_data_generator.tasks.contracts import resolve_task_contract
+    from flaas_data_generator.tasks.runtime import evaluate_task_model
+    from flaas_data_generator.checkpoint_store import capture_model_tensor_state, restore_model_tensor_state
     from tests.generator.test_segmentation_declared_labels import Split
 
     previous_threads = torch.get_num_threads()
@@ -168,8 +168,8 @@ def test_local_segformer_initial_eval_train_and_checkpoint_reload(tmp_path, requ
 
 
 def test_initial_preparation_receives_reviewed_precision(monkeypatch):
-    from mlaas_data_generator import shared_parent
-    from mlaas_data_generator.services import runner
+    from flaas_data_generator import shared_parent
+    from flaas_data_generator.services import runner
     cfg = config()
     monkeypatch.setattr(preparation, "manifest_family_error", lambda cfg: None)
     monkeypatch.setattr(runner, "_sample_count", lambda *a: 500)

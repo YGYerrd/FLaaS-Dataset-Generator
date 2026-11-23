@@ -4,11 +4,11 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_data_generator import shared_parent
-from mlaas_data_generator.services import runner
-from mlaas_data_generator.services.taxonomy import canonical_task_family
-from mlaas_data_generator.provenance import label_semantics, sha256_file, sha256_json
-from mlaas_data_generator.cli.manifest import preparation
+from flaas_data_generator import shared_parent
+from flaas_data_generator.services import runner
+from flaas_data_generator.services.taxonomy import canonical_task_family
+from flaas_data_generator.provenance import label_semantics, sha256_file, sha256_json
+from flaas_data_generator.cli.manifest import preparation
 
 
 @pytest.mark.parametrize("alias", ["text_classification", "text-classification", "sequence_classification", "classification"])
@@ -61,7 +61,7 @@ def test_new_text_cache_namespace_does_not_reuse_unknown_task_preparation():
 def test_precision_summary_works_with_windows_redirected_output(monkeypatch):
     import io
     import sys
-    from mlaas_data_generator.terminal import print_service_summary
+    from flaas_data_generator.terminal import print_service_summary
     sink = io.BytesIO()
     stream = io.TextIOWrapper(sink, encoding="cp1252", errors="strict")
     monkeypatch.setattr(sys, "stdout", stream)

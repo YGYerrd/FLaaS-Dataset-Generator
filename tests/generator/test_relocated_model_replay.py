@@ -5,9 +5,9 @@ import sqlite3
 
 import pytest
 
-from mlaas_data_generator import client_reconstruction as replay
-from mlaas_data_generator.cli.manifest import preparation
-from mlaas_data_generator.provenance import model_identity, sha256_json
+from flaas_data_generator import client_reconstruction as replay
+from flaas_data_generator.cli.manifest import preparation
+from flaas_data_generator.provenance import model_identity, sha256_json
 from tests.generator.test_client_reconstruction import raw_family
 
 
@@ -96,7 +96,7 @@ def test_recipe_source_reaches_member_and_aggregate_preparation(relocated_family
             with replay.materialize_service(cfg["db_path"], cfg["service_id"]):
                 pytest.fail("should stop before training")
         else:
-            from mlaas_composition.regeneration import execute_raw_family_state
+            from flaas_composition.regeneration import execute_raw_family_state
             member = {"parent_document": doc, "recipe": recipe, "service_id": cfg["service_id"],
                       "provenance_json": provenance}
             execute_raw_family_state(member, "aggregate", None, None)

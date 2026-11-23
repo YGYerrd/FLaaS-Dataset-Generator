@@ -5,10 +5,10 @@ import sqlite3
 import pandas as pd
 import pytest
 
-from mlaas_data_generator import client_reconstruction as replay
-from mlaas_data_generator.cli import main, run_manifest
-from mlaas_data_generator.cli.manifest import preparation
-from mlaas_data_generator.config import CONFIG
+from flaas_data_generator import client_reconstruction as replay
+from flaas_data_generator.cli import main, run_manifest
+from flaas_data_generator.cli.manifest import preparation
+from flaas_data_generator.config import CONFIG
 
 
 @pytest.mark.parametrize("attempted, skipped, allowed", [
@@ -68,7 +68,7 @@ def test_retention_cli_and_row_resolution(policy):
 
 @pytest.mark.parametrize("model_type", ["mlp", "cnn", "logreg", "hf_finetune", "hf_train", "transformers_finetune"])
 def test_supported_independent_defaults_to_recipe_only(model_type):
-    from mlaas_data_generator.services.runner import ServiceRunner
+    from flaas_data_generator.services.runner import ServiceRunner
     row = {"service_id": "normal", "model_type": model_type}
     cfg = run_manifest._resolve_row(pd.Series(row), {})
     assert cfg["weight_retention"] == ServiceRunner(row).config["weight_retention"] == "recipe_only"
@@ -99,7 +99,7 @@ def test_explicit_retention_overrides_and_family_identity():
 
 
 def test_unprepared_recipe_execution_fails_before_training(tmp_path, monkeypatch):
-    from mlaas_data_generator.services.runner import ServiceRunner
+    from flaas_data_generator.services.runner import ServiceRunner
     service = ServiceRunner({"model_type": "mlp", "service_id": "unprepared", "db_path": str(tmp_path / "services.db")})
     monkeypatch.setattr(service, "_execute_service", lambda **kw: pytest.fail("unprepared client trained"))
     result = service.run()
@@ -120,14 +120,14 @@ def trained_recipe(tmp_path_factory):
         "provenance_artifact_dir": str(root / "artifacts")}
     entry = run_manifest.ManifestEntry(0, 1, config, run_manifest.RowValidation(True))
     from unittest.mock import patch
-    from mlaas_data_generator.services.runner import execute_service
-    from mlaas_data_generator.checkpoint_store import capture_model_tensor_state
+    from flaas_data_generator.services.runner import execute_service
+    from flaas_data_generator.checkpoint_store import capture_model_tensor_state
     seen = []
     def execute(row):
         result = execute_service(row)
         seen.append((row, result))
         return result
-    with patch("mlaas_data_generator.services.runner.persist_service_patch", side_effect=AssertionError("client weight write")):
+    with patch("flaas_data_generator.services.runner.persist_service_patch", side_effect=AssertionError("client weight write")):
         results = preparation.execute_entries([entry], execute_service=execute)
     assert results[0]["status"] == "success", results
     assert seen[0][1].final_tensor_state is None and not seen[0][1].weights_saved
@@ -152,11 +152,11 @@ def test_recipe_only_persists_normal_completed_service_without_client_weights(tr
 
 
 def test_materialization_never_reads_client_checkpoint_or_writes_originals(trained_recipe, monkeypatch):
-    from mlaas_data_generator.checkpoint_store import capture_model_tensor_state
+    from flaas_data_generator.checkpoint_store import capture_model_tensor_state
     cfg = trained_recipe
     def forbidden(*a, **k):
         pytest.fail("materialization read a client checkpoint")
-    monkeypatch.setattr("mlaas_data_generator.checkpoint_store.reconstruct_service_state", forbidden)
+    monkeypatch.setattr("flaas_data_generator.checkpoint_store.reconstruct_service_state", forbidden)
     monkeypatch.setattr(preparation, "reconstruct_service_state", forbidden)
     with sqlite3.connect(cfg["db_path"]) as conn:
         before = conn.execute("SELECT * FROM service_metrics").fetchall()
@@ -175,7 +175,7 @@ def test_materialization_never_reads_client_checkpoint_or_writes_originals(train
 ])
 def test_recipe_skip_allowance_through_generation_and_materialization(
         trained_recipe, tmp_path, monkeypatch, original_skips, reconstructed_skips):
-    from mlaas_data_generator.services.runner import ServiceRunner, execute_service
+    from flaas_data_generator.services.runner import ServiceRunner, execute_service
     cfg = {**trained_recipe, "service_id": "skip_recipe", "db_path": str(tmp_path / "services.db"),
            "provenance_artifact_dir": str(tmp_path / "artifacts")}
     for key in ("family_id", "family_contract_version", "initial_state_hash", "family_document_ref", "family_document_hash"):
@@ -301,7 +301,7 @@ def test_functional_gate_accepts_non_bitwise_reconstruction(task):
 @pytest.mark.parametrize("task", ["causal_lm_generation", "seq2seq_generation", "fill_mask"])
 def test_reconstruction_source_accepts_official_text_supervision(monkeypatch, task):
     import datasets
-    from mlaas_data_generator.data.sources.huggingface import load_huggingface_source
+    from flaas_data_generator.data.sources.huggingface import load_huggingface_source
     source = datasets.Dataset.from_dict({"text": ["one sentence", "another sentence"],
                                         "summary": ["one", "another"]})
     calls = []
@@ -317,7 +317,7 @@ def test_reconstruction_source_accepts_official_text_supervision(monkeypatch, ta
 def test_comparison_resume_rejects_changed_recipe_results_or_bytes(tmp_path):
     from pathlib import Path
     from scripts.validate_client_reconstruction import reusable_comparison
-    from mlaas_data_generator.provenance import write_json_artifact
+    from flaas_data_generator.provenance import write_json_artifact
     report = {"version": "client_reconstruction_comparison_v3", "replay_evidence": {"fresh_process": True},
         "service_id": "s", "recipe_hash": "recipe", "reference_service_id": "reference",
         "training": {"device": "cpu"}, "gate": {"passed": True, "tolerances": replay.DEFAULT_TOLERANCES},

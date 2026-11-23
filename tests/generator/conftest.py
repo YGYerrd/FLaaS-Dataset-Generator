@@ -4,8 +4,8 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def isolated_manifest_exports(tmp_path, monkeypatch):
-    from mlaas_data_generator import config
-    from mlaas_data_generator.cli import run_manifest
+    from flaas_data_generator import config
+    from flaas_data_generator.cli import run_manifest
 
     for name, filename in (
         ("MANIFEST_RESULTS_PATH", "service_manifest_results.csv"),

@@ -80,20 +80,7 @@ annotation; it must not be interpreted as measured model quality.
 
 ## Historical evidence and fallback
 
-The checked-in `mlaas_data_generator/clients/recipe_evidence.json` was mined from
-`outputs/services.db`: 19,406 total records. Eligible independent HF records
-include 2,420 text classifiers, 1,700 image classifiers, 2,045 token classifiers
-and 1,795 sentence-pair models. 6,466 observations have usable metrics/contracts;
-252 records have nonfinite or missing loss, and 1,242 binary sentence-pair records
-have unverified regression contracts (their legacy correlation names contain
-classification metrics). Another 1,672 records have insufficient training-class
-coverage for attributing outcomes to their training recipe. Those skewed records
-remain in the descriptive family outcome counts.
-
-The evidence contains 472 text, 545 image, 308 token and 101 continuous-score
-joint recipe groups. These are observations, not all supported recipes. Task
-pools are strictly separate: a token or image model cannot borrow text-classifier
-evidence just because optimizer settings happen to match.
+The generator reads per-task training evidence from `flaas_data_generator/clients/recipe_evidence.json`. Classification, token and continuous-score clients use separate observations. The [original calibration report](https://github.com/YGYerrd/FLaaS-Dataset-Generator/blob/78e308240bf78cbd9bc59de2e2120b68cc64a3cd/docs/generation-policies.md#historical-evidence-and-fallback) records the source cohort, eligibility checks and outcome counts.
 
 Other tasks, generic CNN/MLP clients, pretrained task-parent clients and multiround
 FedAvg retain their existing policies. In particular, old generic regression
@@ -148,7 +135,7 @@ The source observation digest and complete evidence document hash are frozen.
 Rebuilding evidence is an explicit offline operation:
 
 ```powershell
-.venv/Scripts/python.exe -m mlaas_data_generator.clients.calibration --db outputs/services.db --output mlaas_data_generator/clients/recipe_evidence.json
+.venv/Scripts/python.exe -m flaas_data_generator.clients.calibration --db outputs/services.db --output flaas_data_generator/clients/recipe_evidence.json
 ```
 
 Review the resulting JSON diff, then generate a **new** manifest using the
@@ -198,7 +185,7 @@ layers. This avoids the measured slow NHWC MIOpen path at physical batch size
 two while preserving the requested batch size, precision and BatchNorm behavior.
 The runtime logs `using contiguous DPT convolution inputs` when it installs the
 workaround. It applies to newly initialized runtimes, including existing manifest
-recipes. For diagnostic comparisons, set `MLAAS_ROCM_DPT_CONTIGUOUS_CONV=0` before
+recipes. For diagnostic comparisons, set `FLAAS_ROCM_DPT_CONTIGUOUS_CONV=0` before
 starting the process. See the controlled diagnostic.
 
 The same layout workaround also applies to UPerNet models whose configured
@@ -206,7 +193,7 @@ backbone is ConvNeXt. A controlled `openmmlab/upernet-convnext-tiny` GPU test
 confirmed slow NHWC kernels in the feature-pyramid convolutions, with ample
 free VRAM. Setup logs `using contiguous UPerNet-ConvNeXt convolution inputs`.
 Other UPerNet backbones are excluded. Set
-`MLAAS_ROCM_UPERNET_CONTIGUOUS_CONV=0` before process startup only when running
+`FLAAS_ROCM_UPERNET_CONTIGUOUS_CONV=0` before process startup only when running
 diagnostic controls. See the UPerNet measurements.
 
 Text-classification dataset aliases resolve to classification before preparing
@@ -232,7 +219,7 @@ counts. It is descriptive and does not resample providers.
 After a family has trained and saved checkpoints, compare its actual outputs:
 
 ```powershell
-.venv/Scripts/python.exe -m mlaas_data_generator.cli.main family-diagnostics --db outputs/test_services.db --family-id FULL_FAMILY_ID --output-dir outputs/family_diversity
+.venv/Scripts/python.exe -m flaas_data_generator.cli.main family-diagnostics --db outputs/test_services.db --family-id FULL_FAMILY_ID --output-dir outputs/family_diversity
 ```
 
 Use the full `family_id` from `service_generation_provenance`. The command reloads

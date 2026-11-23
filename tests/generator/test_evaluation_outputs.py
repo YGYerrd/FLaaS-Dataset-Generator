@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.services.evaluation_outputs import (
+from flaas_data_generator.services.evaluation_outputs import (
     TaskOutput,
     UnsupportedTaskOutput,
     candidate_units,
@@ -18,7 +18,7 @@ from mlaas_data_generator.services.evaluation_outputs import (
     predict_task_outputs,
     task_output_quality,
 )
-from mlaas_data_generator.services.perturbation import _meaningful_units, _tensor_prediction
+from flaas_data_generator.services.perturbation import _meaningful_units, _tensor_prediction
 
 
 def test_classification_measures_probability_movement_even_when_class_is_constant():
@@ -314,7 +314,7 @@ def test_hf_valid_tokens_exclude_known_boundary_tokens_but_keep_unknown_words():
 
 
 def test_hf_token_adapter_uses_actual_spec_and_keeps_masks_out_of_model_forward():
-    from mlaas_data_generator.models.adapters.hf_task import TokenClassificationSpec
+    from flaas_data_generator.models.adapters.hf_task import TokenClassificationSpec
 
     def forward(enc):
         assert "special_tokens_mask" not in enc

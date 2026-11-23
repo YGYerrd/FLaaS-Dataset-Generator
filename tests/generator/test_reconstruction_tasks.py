@@ -9,11 +9,11 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator import client_reconstruction as replay
-from mlaas_data_generator.provenance import sha256_file, sha256_json, write_json_artifact
-from mlaas_data_generator.task_capabilities import resolve_capabilities, reconstruction_report_capabilities
-from mlaas_data_generator.tasks import resolve_task_contract
-from mlaas_data_generator.tasks.runtime import evaluate_task_model
+from flaas_data_generator import client_reconstruction as replay
+from flaas_data_generator.provenance import sha256_file, sha256_json, write_json_artifact
+from flaas_data_generator.task_capabilities import resolve_capabilities, reconstruction_report_capabilities
+from flaas_data_generator.tasks import resolve_task_contract
+from flaas_data_generator.tasks.runtime import evaluate_task_model
 from tests.generator.test_task_runtime import Tokenizer
 from tests.generator.test_weight_retention import trained_recipe
 
@@ -38,8 +38,8 @@ def test_reconstruction_capabilities_do_not_require_client_weights(task):
 
 
 def test_token_family_names_roundtrip():
-    from mlaas_data_generator.cli.manifest.preparation import contract_config, group_key
-    from mlaas_data_generator.services.taxonomy import canonical_task_family
+    from flaas_data_generator.cli.manifest.preparation import contract_config, group_key
+    from flaas_data_generator.services.taxonomy import canonical_task_family
     for task in ("token_classification", "fill_mask"):
         cfg = {"hf_task": task, "task_type": "classification", "model_type": "hf_finetune"}
         frozen = contract_config(cfg)
@@ -48,8 +48,8 @@ def test_token_family_names_roundtrip():
 
 
 def masked_fixture(batch_size):
-    from mlaas_data_generator.models.adapters.hf_task import FillMaskSpec
-    from mlaas_data_generator.models.adapters.hf_core import HFCore
+    from flaas_data_generator.models.adapters.hf_task import FillMaskSpec
+    from flaas_data_generator.models.adapters.hf_core import HFCore
     class MaskedModel(torch.nn.Module):
         config = SimpleNamespace()
         def forward(self, input_ids, attention_mask):
@@ -99,7 +99,7 @@ def test_mask_contract_freezes_probability_seed_and_special_tokens():
 
 
 def test_sequence_filter_preserves_source_positions_for_replacement():
-    from mlaas_data_generator.data.tokenization_selection import filter_token_supervision
+    from flaas_data_generator.data.tokenization_selection import filter_token_supervision
     x = {"input_ids": np.arange(12).reshape(4, 3)}
     y = np.array([[-100] * 3, [1, -100, -100], [-100] * 3, [2, 1, -100]])
     train, test, meta = filter_token_supervision((x, y), (x, y), {
@@ -112,7 +112,7 @@ def test_sequence_filter_preserves_source_positions_for_replacement():
 
 
 def test_masking_excludes_special_and_padding_positions():
-    from mlaas_data_generator.data.preprocessors.hf_text_fill_mask import _source_mlm_labels
+    from flaas_data_generator.data.preprocessors.hf_text_fill_mask import _source_mlm_labels
     tokenizer = SimpleNamespace(mask_token_id=9, vocab_size=10)
     enc = {"input_ids": np.array([[8, 1, 2, 0]]), "attention_mask": np.array([[1, 1, 1, 0]]),
            "special_tokens_mask": np.array([[1, 0, 0, 1]])}
@@ -122,7 +122,7 @@ def test_masking_excludes_special_and_padding_positions():
 
 
 def test_replay_detects_adapter_effective_setting_drift(trained_recipe, monkeypatch):
-    from mlaas_data_generator.services.runner import ServiceRunner
+    from flaas_data_generator.services.runner import ServiceRunner
     original = ServiceRunner._train_model_effective
     def changed(self, *args, **kwargs):
         observed = original(self, *args, **kwargs)
@@ -146,7 +146,7 @@ def test_corrupt_recipe_or_source_fails_before_replay(trained_recipe, tmp_path, 
     with sqlite3.connect(db) as conn:
         conn.execute("UPDATE service_generation_provenance SET client_recipe_ref=?,client_recipe_hash=?",
                      (str(path), sha256_file(path) if corruption == "source_evidence" else "corrupt"))
-    monkeypatch.setattr("mlaas_data_generator.cli.manifest.preparation.prepare", lambda *a, **k: pytest.fail("prepared corrupt input"))
+    monkeypatch.setattr("flaas_data_generator.cli.manifest.preparation.prepare", lambda *a, **k: pytest.fail("prepared corrupt input"))
     with pytest.raises(ValueError, match="integrity|source disagrees"):
         with replay.materialize_service(db, "recipe"):
             pytest.fail("corrupt evidence accepted")

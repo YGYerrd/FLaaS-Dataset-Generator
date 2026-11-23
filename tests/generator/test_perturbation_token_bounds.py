@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import torch
 
-from mlaas_data_generator.services.perturbation import (
+from flaas_data_generator.services.perturbation import (
     _mask_token, _mask_token_text, _mask_token_id,
 )
 

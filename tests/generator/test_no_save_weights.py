@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mlaas_data_generator.services import runner
-from mlaas_data_generator.cli import main as cli, run_manifest as manifest
-from mlaas_data_generator.cli.manifest import preparation
+from flaas_data_generator.services import runner
+from flaas_data_generator.cli import main as cli, run_manifest as manifest
+from flaas_data_generator.cli.manifest import preparation
 from tests.generator.test_service_runner import DummyModel
 
 
@@ -91,7 +91,7 @@ def test_normal_versioned_client_can_select_without_frozen_pool(debug_training):
 
 def test_manifest_flag_bypasses_family_persistence_and_preserves_provider(debug_training, tmp_path):
     cfg, model = debug_training
-    from mlaas_data_generator.storage.writer import SQLiteWriter
+    from flaas_data_generator.storage.writer import SQLiteWriter
     writer = SQLiteWriter(cfg["db_path"])
     writer.start()
     writer.write_service({"service_id": "client", "status": "completed"})
@@ -179,7 +179,7 @@ def test_manifest_can_disable_scoring_without_disabling_signatures(debug_trainin
 
 
 def test_smoke_cli_and_identity_are_idempotent():
-    from mlaas_data_generator.debug_mode import apply_debug_mode
+    from flaas_data_generator.debug_mode import apply_debug_mode
     assert cli.build_parser().parse_args(["run-manifest", "--file", "x.csv", "--smoke-test"]).smoke_test
     assert manifest.build_parser().parse_args(["--file", "x.csv", "--smoke-test"]).smoke_test
     cfg = {"service_id": "x", "smoke_test": True, "no_save_weights": True}
@@ -254,7 +254,7 @@ def test_grouped_execution_releases_arrays_before_loading_next_dataset(debug_tra
 @pytest.mark.parametrize("grouped", [False, True])
 def test_client_quantity_survives_hf_loading_and_stale_source_caps(debug_training, monkeypatch, tmp_path, grouped):
     import datasets
-    from mlaas_data_generator.data import master_loader
+    from flaas_data_generator.data import master_loader
     cfg, model = debug_training
     monkeypatch.setattr(model, "predict", lambda x, **kw: np.tile([[0.8, 0.2]], (len(x), 1)))
     raw = {split: datasets.Dataset.from_dict({"text": [str(i) for i in range(n)],

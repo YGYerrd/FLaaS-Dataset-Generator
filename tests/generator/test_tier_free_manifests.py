@@ -7,16 +7,16 @@ import random
 import pandas as pd
 import pytest
 
-from mlaas_data_generator.clients import calibration, recipes, training
-from mlaas_data_generator.cli.manifest.cmd_hf_manifest import register_hf_manifest
-from mlaas_data_generator.cli.manifest.hf_manifest_builder import (
+from flaas_data_generator.clients import calibration, recipes, training
+from flaas_data_generator.cli.manifest.cmd_hf_manifest import register_hf_manifest
+from flaas_data_generator.cli.manifest.hf_manifest_builder import (
     _sort_models, _sort_datasets, build_hf_manifest, save_manifest,
 )
-from mlaas_data_generator.cli.manifest.review import expand_review_manifest
-from mlaas_data_generator.cli.run_manifest import _resolve_row, _validate_row
-from mlaas_data_generator.cohort_manifest import build_cohort_manifest
-from mlaas_data_generator.provenance import sha256_json
-from mlaas_data_generator.shared_parent import PARENTS_VERSION
+from flaas_data_generator.cli.manifest.review import expand_review_manifest
+from flaas_data_generator.cli.run_manifest import _resolve_row, _validate_row
+from flaas_data_generator.cohort_manifest import build_cohort_manifest
+from flaas_data_generator.provenance import sha256_json
+from flaas_data_generator.shared_parent import PARENTS_VERSION
 
 
 def assert_no_tiers(value):

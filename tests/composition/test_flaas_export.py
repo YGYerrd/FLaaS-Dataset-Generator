@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from mlaas_composition.flaas_export import COLUMNS, REQUIRED_COLUMNS, export_flaas, model_size_mb
+from flaas_composition.flaas_export import COLUMNS, REQUIRED_COLUMNS, export_flaas, model_size_mb
 
 
 def canonical(value):
@@ -40,7 +40,7 @@ def dataset(tmp_path):
             CREATE TABLE service_generation_provenance(service_id TEXT PRIMARY KEY, family_id TEXT,
                 client_recipe_hash TEXT, family_document_hash TEXT, initial_state_hash TEXT);
         """)
-        comp.executescript((Path(__file__).parents[2] / "mlaas_composition/assets/composition_schema.sql").read_text())
+        comp.executescript((Path(__file__).parents[2] / "flaas_composition/assets/composition_schema.sql").read_text())
         for run, status in (("r1", "completed"), ("r2", "completed"), ("r3", "failed"), ("r4", "pending")):
             comp.execute("INSERT INTO composition_runs VALUES (?,?,?,?,?,?,?,?,?)",
                          (run, run, "manifest", str(source_db), "v1", "{}", "2026-11-01", "2026-11-01", None))
@@ -192,7 +192,7 @@ def test_schema_units_and_invalid_dtype():
 
 
 def test_cli_and_input_protection(dataset, capsys):
-    from mlaas_composition.cli import main
+    from flaas_composition.cli import main
     main(["export-flaas", "--db", str(dataset["db"]), "--source-db", str(dataset["source_db"]),
           "--output", str(dataset["output"])])
     assert json.loads(capsys.readouterr().out)["rows"] == 4

@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_data_generator import behavioural_diagnostics as diagnostics
+from flaas_data_generator import behavioural_diagnostics as diagnostics
 
 
 def test_prediction_diversity_distinguishes_duplicates_constants_and_shared_errors():
@@ -31,8 +31,8 @@ def test_regression_diversity_reports_continuous_differences_and_constant_output
 
 @pytest.mark.parametrize("overlap,bad_hash", [(False, False), (True, False), (False, True)])
 def test_independent_diagnostics_use_only_catalogue_and_verify_member_hashes(tmp_path, monkeypatch, overlap, bad_hash):
-    from mlaas_data_generator.cli.manifest import preparation
-    from mlaas_data_generator import reduced_checkpoint
+    from flaas_data_generator.cli.manifest import preparation
+    from flaas_data_generator import reduced_checkpoint
     db = tmp_path / "services.db"
     con = sqlite3.connect(db)
     con.executescript("""

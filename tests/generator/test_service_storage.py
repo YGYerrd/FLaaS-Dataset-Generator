@@ -1,7 +1,7 @@
 import sqlite3
 
-from mlaas_data_generator.fedavg_run import recover_abandoned_fedavg_runs
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_data_generator.fedavg_run import recover_abandoned_fedavg_runs
+from flaas_data_generator.storage.writer import make_writer
 
 
 def test_service_writer_persists_service_metrics_artifacts_and_failures(tmp_path):

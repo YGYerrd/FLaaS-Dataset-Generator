@@ -173,7 +173,7 @@ def test_evaluation_restart_discards_failed_attempt_statistics():
 
 
 def test_structured_evaluation_retries_without_duplicating_streamed_predictions():
-    from mlaas_data_generator.tasks.runtime import evaluate_task_model
+    from flaas_data_generator.tasks.runtime import evaluate_task_model
     model, contract, x, y = fixture(batch_size=4)
     baseline = evaluate_task_model(model, x, y, contract, ["a", "b", "c"])
     original = model.core.model.forward
@@ -194,7 +194,7 @@ def test_structured_evaluation_retries_without_duplicating_streamed_predictions(
 
 
 def test_failure_persists_memory_policy_and_update_counts(tmp_path, monkeypatch):
-    from mlaas_data_generator.services.runner import ServiceRunner, _fit_transformers_with_memory_metadata
+    from flaas_data_generator.services.runner import ServiceRunner, _fit_transformers_with_memory_metadata
     cfg = {"service_id": "oom", "db_path": str(tmp_path / "test.db"), "batch_size": 4}
     instance = ServiceRunner(cfg)
     core = failing_core(0)

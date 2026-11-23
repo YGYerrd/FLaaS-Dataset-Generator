@@ -6,12 +6,12 @@ import numpy as np
 import pytest
 from datasets import Dataset
 
-from mlaas_data_generator.clients.partitioning import client_partition
-from mlaas_data_generator.data.raw_text_axis import AXIS, LENGTH_FIELD
-from mlaas_data_generator.data.skew_axes import resolve_skew_axis
-from mlaas_data_generator.data.tokenization_selection import training_row_selection
-from mlaas_data_generator.data.preprocessors.hf import preprocess_hf
-from mlaas_data_generator.tasks.contracts import resolve_task_contract
+from flaas_data_generator.clients.partitioning import client_partition
+from flaas_data_generator.data.raw_text_axis import AXIS, LENGTH_FIELD
+from flaas_data_generator.data.skew_axes import resolve_skew_axis
+from flaas_data_generator.data.tokenization_selection import training_row_selection
+from flaas_data_generator.data.preprocessors.hf import preprocess_hf
+from flaas_data_generator.tasks.contracts import resolve_task_contract
 from tests.generator.test_tokenization_selection import config
 from tests.generator.test_hf_fill_mask_memory import Tokenizer
 
@@ -74,7 +74,7 @@ def test_fill_mask_partition_is_independent_of_tokenizer_and_masking(strategy):
 
 
 def test_group_scans_raw_text_once_then_tokenizes_selected_union_and_replacements(monkeypatch):
-    from mlaas_data_generator.data.preprocessors import hf_text_fill_mask
+    from flaas_data_generator.data.preprocessors import hf_text_fill_mask
 
     count = 4099
     events, seen = [], []

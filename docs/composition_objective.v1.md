@@ -1,7 +1,7 @@
 # Collaborative composition objective v1
 
 `collaborative_objective.v1` is the frozen surrogate objective implemented by
-`mlaas_composition.sampler.calculate_utility`. It applies only to collaborative
+`flaas_composition.sampler.calculate_utility`. It applies only to collaborative
 groups; it is not an oracle for deployed-service or ensemble quality.
 
 For a selected group, let `d_i` be the eight normalized, higher-is-better
@@ -16,7 +16,7 @@ The dimensions are data-distribution compatibility, update-signature alignment,
 compute-time homogeneity, latency feasibility, metric-score homogeneity,
 reliability homogeneity, mean faithfulness-oriented explainability score, and
 one minus mean resource-cost score. Each dimension and its direction is listed
-in `mlaas_composition/assets/objective.v1.json`.
+in `flaas_composition/assets/objective.v1.json`.
 
 ## Worked example
 

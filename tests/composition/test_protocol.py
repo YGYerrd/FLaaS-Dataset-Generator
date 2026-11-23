@@ -3,10 +3,10 @@ import sqlite3
 
 import pandas as pd
 
-from mlaas_composition.cli import main
-from mlaas_composition.protocol import REQUEST_SCHEMA_VERSION, read_request_file, sha256_file, validate_request_frame, write_request_file
-from mlaas_composition.sampler import calculate_utility
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_composition.cli import main
+from flaas_composition.protocol import REQUEST_SCHEMA_VERSION, read_request_file, sha256_file, validate_request_frame, write_request_file
+from flaas_composition.sampler import calculate_utility
+from flaas_data_generator.storage.writer import make_writer
 
 
 def test_worked_objective_example_is_stable():

@@ -4,7 +4,7 @@ For token classification, semantic segmentation and seq2seq summarisation, see
 [task capabilities and v5 composition](task-capabilities.md). That guide includes
 the capability report, scoped runtime evidence and the opt-in smoke commands.
 
-This project generates controlled families of compatible Machine Learning as a Service records. The main workflow generates heterogeneous recipes and trains each service independently from one frozen initial checkpoint per family. Generation performs no model aggregation.
+This project generates controlled families of compatible Federated Learning as a Service records. The main workflow generates heterogeneous recipes and trains each service independently from one frozen initial checkpoint per family. To run FedAvg on these clients, use the composition executor. The [execution guide](../README.md#4-run-the-federated-loop) covers prepared classification pools, timing baselines and multi-round experiments.
 
 
 
@@ -30,11 +30,11 @@ hf-manifest -> run-manifest -> composition within a frozen family
 
 ```powershell
 
-python -m mlaas_data_generator.cli.main hf-manifest --task-keys text_classification --models-per-task 1 --datasets-per-model 1 --clients-per-family 100 --seed 42 --output outputs/clients.csv
+python -m flaas_data_generator.cli.main hf-manifest --task-keys text_classification --models-per-task 1 --datasets-per-model 1 --clients-per-family 100 --seed 42 --output outputs/clients.csv
 
-python -m mlaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/services.db
+python -m flaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/services.db
 
-python -m mlaas_composition generate-requests --db outputs/services.db --output outputs/family_requests.json --compatibility-mode strict --profile controlled_collaborative_v4
+python -m flaas_composition generate-requests --db outputs/services.db --output outputs/family_requests.json --compatibility-mode strict --profile controlled_collaborative_v4
 
 ```
 
@@ -60,7 +60,7 @@ Use `hf-manifest --manifest-format expanded ...` to export the previous full-row
 
 
 
-Both `hf-manifest` and `cohort-manifest` use the shared client library in `mlaas_data_generator/clients/`. It owns profile balancing, client quantities, sampling/training seeds, optimizer-specific learning rates, resource limits, and partitioning. New clients use IID, Dirichlet, and shard profiles; `--heterogeneity-intensity` controls distribution skew (default `0.5`, range `0–1`). Both generators use explicit task/model training limits without resource tiers. All profiles receive stratified sample quantities independently of training limits and heterogeneity intensity; Dirichlet and shards change bucket distributions. Sampling never duplicates a row within a client, allows overlap between clients, and records capacity shortfalls.
+Both `hf-manifest` and `cohort-manifest` use the shared client library in `flaas_data_generator/clients/`. It owns profile balancing, client quantities, sampling/training seeds, optimizer-specific learning rates, resource limits, and partitioning. New clients use IID, Dirichlet, and shard profiles; `--heterogeneity-intensity` controls distribution skew (default `0.5`, range `0–1`). Both generators use explicit task/model training limits without resource tiers. All profiles receive stratified sample quantities independently of training limits and heterogeneity intensity; Dirichlet and shards change bucket distributions. Sampling never duplicates a row within a client, allows overlap between clients, and records capacity shortfalls.
 
 
 
@@ -130,11 +130,11 @@ For the source map and quick start, see the [project README](../README.md).
 
 ## CNN hidden layers
 
-New independent CNN families automatically draw their dense hidden layers uniformly from `[32]`, `[64]`, `[128]`, and `[256]` (25% probability each). The internal pool is `CNN_HIDDEN_LAYER_POOL` in `mlaas_data_generator/config.py`; no architecture argument is required.
+New independent CNN families automatically draw their dense hidden layers uniformly from `[32]`, `[64]`, `[128]`, and `[256]` (25% probability each). The internal pool is `CNN_HIDDEN_LAYER_POOL` in `flaas_data_generator/config.py`; no architecture argument is required.
 
 ```powershell
-python -m mlaas_data_generator.cli.main hf-manifest --task-keys keras_image_classification --clients-per-family 100 --seed 42 --output outputs/cnn_clients.csv
-python -m mlaas_data_generator.cli.main run-manifest --file outputs/cnn_clients.csv --db outputs/services.db
+python -m flaas_data_generator.cli.main hf-manifest --task-keys keras_image_classification --clients-per-family 100 --seed 42 --output outputs/cnn_clients.csv
+python -m flaas_data_generator.cli.main run-manifest --file outputs/cnn_clients.csv --db outputs/services.db
 ```
 
 The manifest seed makes the draw reproducible. Changing the seed makes a fresh draw, which may select the same size. Client count and task ordering do not affect the architecture draw. The convolution filters remain 32 and 64; other model types keep their existing architecture.
@@ -271,7 +271,7 @@ normal backend. Restart the Python process to pick up this workaround. To test a
 
 fixed ROCm installation with MIOpen BatchNorm, set
 
-`$env:MLAAS_ROCM_NATIVE_BATCHNORM = "0"` before starting Python.
+`$env:FLAAS_ROCM_NATIVE_BATCHNORM = "0"` before starting Python.
 
 
 
@@ -357,7 +357,7 @@ Set these before running large jobs if you want caches and outputs on a fast dis
 
 ```bash
 
-export MLAAS_OUTDIR=/mnt/fast/mlaas-outputs
+export FLAAS_OUTDIR=/mnt/fast/flaas-outputs
 
 export HF_HOME=/mnt/fast/huggingface
 
@@ -393,7 +393,7 @@ Run commands from the repository root:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main <command> [options]
+python -m flaas_data_generator.cli.main <command> [options]
 
 ```
 
@@ -427,11 +427,11 @@ Check the installed CLI:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main --help
+python -m flaas_data_generator.cli.main --help
 
-python -m mlaas_data_generator.cli.main hf-manifest --help
+python -m flaas_data_generator.cli.main hf-manifest --help
 
-python -m mlaas_data_generator.cli.main run-manifest --help
+python -m flaas_data_generator.cli.main run-manifest --help
 
 ```
 
@@ -441,7 +441,7 @@ python -m mlaas_data_generator.cli.main run-manifest --help
 
 
 
-Composition is a downstream workflow and is owned by `mlaas_composition`, not
+Composition is a downstream workflow and is owned by `flaas_composition`, not
 
 the service generator. It accepts either the generator's normalized SQLite
 
@@ -455,7 +455,7 @@ controlled synthetic requests:
 
 ```bash
 
-python -m mlaas_composition generate-requests \
+python -m flaas_composition generate-requests \
 
   --db outputs/services.db \
 
@@ -489,7 +489,7 @@ requests:
 
 ```bash
 
-python -m mlaas_composition evaluate \
+python -m flaas_composition evaluate \
 
   --db outputs/services.db \
 
@@ -513,7 +513,7 @@ seed, command, code revision, dependency versions, input hashes, protocol-asset
 
 hashes, and result-file hashes. The checked-in request profiles, principles,
 
-JSON Schema, and objective definitions live in `mlaas_composition/assets/`; the
+JSON Schema, and objective definitions live in `flaas_composition/assets/`; the
 
 current semantics are documented in `docs/composition_objective.v2.md`, while
 
@@ -535,7 +535,7 @@ quality and utility. It does not train models or average member predictions:
 
 ```bash
 
-python -m mlaas_composition validate \
+python -m flaas_composition validate \
 
   --db outputs/services.db \
 
@@ -605,9 +605,9 @@ The manifest builder reads:
 
 
 
-- `mlaas_data_generator/registry/models.py`
+- `flaas_data_generator/registry/models.py`
 
-- `mlaas_data_generator/registry/datasets.py`
+- `flaas_data_generator/registry/datasets.py`
 
 
 
@@ -621,7 +621,7 @@ mkdir -p outputs
 
 
 
-python -m mlaas_data_generator.cli.main hf-manifest \
+python -m flaas_data_generator.cli.main hf-manifest \
 
   --manifest-profile test \
 
@@ -795,10 +795,10 @@ trajectories, materialisation commands and the Stage F fidelity gate.
 Add `--no-trust-explainability` to skip both scoring stages:
 
 ```powershell
-python -m mlaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/services.db --no-trust-explainability
+python -m flaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/services.db --no-trust-explainability
 ```
 
-The flag is also supported by `python -m mlaas_data_generator.cli.run_manifest`
+The flag is also supported by `python -m flaas_data_generator.cli.run_manifest`
 and the Python API (`run_manifest(..., no_trust_explainability=True)`). It overrides
 manifest settings and `--metric-evaluation-profile`. Training, quality evaluation,
 weight retention, update signatures and service IDs keep their normal settings.
@@ -813,10 +813,10 @@ initial/final checkpoint writes, compression, reconstruction files and checkpoin
 verification:
 
 ```powershell
-.venv/Scripts/python.exe -m mlaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/debug_services.db --no-save-weights
+.venv/Scripts/python.exe -m flaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/debug_services.db --no-save-weights
 ```
 
-The same flag is supported by `python -m mlaas_data_generator.cli.run_manifest`.
+The same flag is supported by `python -m flaas_data_generator.cli.run_manifest`.
 For individual manifest rows or Python configurations, set `no_save_weights=true`.
 The older `save_weights` field does not control production weight retention;
 use `weight_retention` for that policy.
@@ -846,7 +846,7 @@ do not replace full observations. The omitted metrics are explicitly marked as
 disabled in the stored results.
 
 ```powershell
-.venv/Scripts/python.exe -m mlaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/smoke_services.db --no-save-weights --smoke-test
+.venv/Scripts/python.exe -m flaas_data_generator.cli.main run-manifest --file outputs/clients.csv --db outputs/smoke_services.db --no-save-weights --smoke-test
 ```
 
 Manifest executions reuse raw HF dataset splits and generation tokenizer
@@ -896,7 +896,7 @@ families retain their existing execution path. No command-line flag is needed.
 
 ```powershell
 Remove-Item Env:MIOPEN_FIND_MODE -ErrorAction SilentlyContinue
-.venv/Scripts/python.exe -m mlaas_data_generator.cli.main run-manifest --file outputs/all_families_5_clients.csv --db outputs/all_families_test.db --no-save-weights
+.venv/Scripts/python.exe -m flaas_data_generator.cli.main run-manifest --file outputs/all_families_5_clients.csv --db outputs/all_families_test.db --no-save-weights
 ```
 
 Each selected model group runs in a fresh subprocess with FAST present before
@@ -932,7 +932,7 @@ For a 2-GPU NVIDIA Linux VM, use:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest.xlsx \
 
@@ -980,7 +980,7 @@ Dry-run validation does not train models. It normalizes column names, applies de
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest.xlsx \
 
@@ -1016,7 +1016,7 @@ After the dry run succeeds, execute the enabled service rows:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest.xlsx \
 
@@ -1048,7 +1048,7 @@ For the 2-GPU Linux VM shown above, a good default is:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest.xlsx \
 
@@ -1068,7 +1068,7 @@ If you explicitly want to maximize row-level spreading instead of grouped reuse,
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest.xlsx \
 
@@ -1131,7 +1131,7 @@ The run writes:
 
 
 
-Successful rows are written to the SQLite database configured by `CONFIG["db_path"]`, `MLAAS_DB_PATH`, `MLAAS_SQL_DB_PATH`, or the `--db` override.
+Successful rows are written to the SQLite database configured by `CONFIG["db_path"]`, `FLAAS_DB_PATH`, `FLAAS_SQL_DB_PATH`, or the `--db` override.
 
 
 
@@ -1257,7 +1257,7 @@ Example larger manifest:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main hf-manifest \
+python -m flaas_data_generator.cli.main hf-manifest \
 
   --manifest-profile balanced \
 
@@ -1290,7 +1290,7 @@ Validate it:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest_balanced.xlsx \
 
@@ -1308,7 +1308,7 @@ Run it:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest_balanced.xlsx \
 
@@ -1426,7 +1426,7 @@ To rerun only failed rows after fixing the cause, use:
 
 ```bash
 
-python -m mlaas_data_generator.cli.main run-manifest \
+python -m flaas_data_generator.cli.main run-manifest \
 
   --file outputs/service_manifest_failed.csv \
 
@@ -1442,9 +1442,9 @@ python -m mlaas_data_generator.cli.main run-manifest \
 
 
 
-- Add HF models in `mlaas_data_generator/registry/models.py`.
+- Add HF models in `flaas_data_generator/registry/models.py`.
 
-- Add HF datasets in `mlaas_data_generator/registry/datasets.py`.
+- Add HF datasets in `flaas_data_generator/registry/datasets.py`.
 
 - Keep new execution behavior row-local: one manifest row produces one independent service record.
 

@@ -36,17 +36,17 @@ def run(args):
     from datasets import Dataset
     from huggingface_hub.constants import HF_HUB_CACHE
     from datasets.config import HF_DATASETS_CACHE
-    from mlaas_data_generator.registry.datasets import DATASET_REGISTRY
-    from mlaas_data_generator.config import CONFIG
-    from mlaas_data_generator.provenance import sha256_file, sha256_json
-    from mlaas_data_generator.cli.run_manifest import run_manifest
-    from mlaas_data_generator.cli.manifest.hf_manifest_builder import save_manifest
-    from mlaas_data_generator.behavioural_diagnostics import family_diagnostics
-    from mlaas_composition.catalogue import load_services_from_db
-    from mlaas_composition.requirements import generate_service_requests
-    from mlaas_composition.protocol import write_request_file
-    from mlaas_composition.cli import build_parser
-    from mlaas_composition.validation_cli import validate_from_files
+    from flaas_data_generator.registry.datasets import DATASET_REGISTRY
+    from flaas_data_generator.config import CONFIG
+    from flaas_data_generator.provenance import sha256_file, sha256_json
+    from flaas_data_generator.cli.run_manifest import run_manifest
+    from flaas_data_generator.cli.manifest.hf_manifest_builder import save_manifest
+    from flaas_data_generator.behavioural_diagnostics import family_diagnostics
+    from flaas_composition.catalogue import load_services_from_db
+    from flaas_composition.requirements import generate_service_requests
+    from flaas_composition.protocol import write_request_file
+    from flaas_composition.cli import build_parser
+    from flaas_composition.validation_cli import validate_from_files
 
     root = Path(args.output_dir).resolve()
     root.mkdir(parents=True, exist_ok=True)
@@ -75,7 +75,7 @@ def run(args):
     evidence["source_contract_hash"] = sha256_json(source_evidence)
     repository = Path(__file__).resolve().parents[2]
     evidence["code_files"] = {str(p.relative_to(repository)): sha256_file(p)
-        for package in ("mlaas_data_generator", "mlaas_composition", "tests/smoke")
+        for package in ("flaas_data_generator", "flaas_composition", "tests/smoke")
         for p in sorted((repository / package).rglob("*.py"))}
     evidence["code_hash"] = sha256_json(evidence["code_files"])
     evidence["hardware"] = {"platform": platform.platform(), "processor": platform.processor(),
@@ -118,8 +118,8 @@ def run(args):
 
     with ExitStack() as stack:
         stack.enter_context(patch("datasets.load_dataset", cached_load))
-        from mlaas_data_generator import config as config_module
-        from mlaas_data_generator.cli import run_manifest as manifest_module
+        from flaas_data_generator import config as config_module
+        from flaas_data_generator.cli import run_manifest as manifest_module
         stack.enter_context(patch.dict(config_module.CONFIG, {"checkpoint_weight_format": "native",
                                                              "checkpoint_measure_full": False, "checkpoint_patch_operation_policy": "fixed_xor"}))
         for name, filename in (("MANIFEST_RESULTS_PATH", "results.csv"), ("FAILED_MANIFEST_PATH", "failed.csv"), ("FAILURE_LOG_PATH", "failures.log")):
@@ -172,16 +172,16 @@ def run(args):
 
 
 def run_shared_parent(root, history_db):
-    from mlaas_data_generator.parent_selection import select_parent_configs
-    from mlaas_data_generator.shared_parent import train_parents
-    from mlaas_data_generator.cohort_manifest import build_cohort_manifest
-    from mlaas_data_generator.cli.run_manifest import run_manifest
-    from mlaas_data_generator.behavioural_diagnostics import cohort_diagnostics
-    from mlaas_composition.catalogue import load_services_from_db
-    from mlaas_composition.requirements import generate_service_requests
-    from mlaas_composition.protocol import write_request_file
-    from mlaas_composition.cli import main as compose
-    from mlaas_composition.validation_cli import validate_from_files
+    from flaas_data_generator.parent_selection import select_parent_configs
+    from flaas_data_generator.shared_parent import train_parents
+    from flaas_data_generator.cohort_manifest import build_cohort_manifest
+    from flaas_data_generator.cli.run_manifest import run_manifest
+    from flaas_data_generator.behavioural_diagnostics import cohort_diagnostics
+    from flaas_composition.catalogue import load_services_from_db
+    from flaas_composition.requirements import generate_service_requests
+    from flaas_composition.protocol import write_request_file
+    from flaas_composition.cli import main as compose
+    from flaas_composition.validation_cli import validate_from_files
     folder = root / "shared_parent"
     folder.mkdir(exist_ok=True)
     selection, parents_path, db = folder / "selection.json", folder / "parents.json", folder / "services.db"
@@ -221,13 +221,13 @@ def run_shared_parent(root, history_db):
 
 def verify_composition(folder, db, services, reservation_ref, summary):
     """Audit baselines never influence catalogue selection or the frozen roster."""
-    from mlaas_composition.fedavg_validation import resolve_selected_fedavg_members, _checkpoint_root
-    from mlaas_composition.regeneration import execute_tensor_state_prediction
-    from mlaas_composition.validation_cli import _read_cohort
-    from mlaas_data_generator.checkpoint_store import reconstruct_service_base_state, reconstruct_service_state
-    from mlaas_data_generator.fedavg_aggregation import FedAvgContributor, FedAvgAggregationError, aggregate_fedavg_states
+    from flaas_composition.fedavg_validation import resolve_selected_fedavg_members, _checkpoint_root
+    from flaas_composition.regeneration import execute_tensor_state_prediction
+    from flaas_composition.validation_cli import _read_cohort
+    from flaas_data_generator.checkpoint_store import reconstruct_service_base_state, reconstruct_service_state
+    from flaas_data_generator.fedavg_aggregation import FedAvgContributor, FedAvgAggregationError, aggregate_fedavg_states
     from dataclasses import replace
-    from mlaas_data_generator.provenance import sha256_file
+    from flaas_data_generator.provenance import sha256_file
     members = resolve_selected_fedavg_members(db, summary["service_ids"])
     first = members[0]
     root = _checkpoint_root(first.row, db)
@@ -282,7 +282,7 @@ def verify_composition(folder, db, services, reservation_ref, summary):
 
 
 def immutable_artifacts(root):
-    from mlaas_data_generator.provenance import sha256_file
+    from flaas_data_generator.provenance import sha256_file
     return {str(path.relative_to(root)): (path.stat().st_mtime_ns, sha256_file(path))
             for path in (root / "artifacts").rglob("*") if path.is_file()}
 

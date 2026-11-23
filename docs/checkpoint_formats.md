@@ -47,7 +47,7 @@ bypasses this skip. Manifest progress
 prints at most once every ten seconds plus a final summary, without redrawing a bar
 after other output.
 
-`mlaas-reduced-checkpoint-v1` records separate source and reload hashes, ordered tensor
+`flaas-reduced-checkpoint-v1` records separate source and reload hashes, ordered tensor
 names, shapes, source/stored dtypes, codec version, payload SHA-256, weight error and
 quality validation. `final_model_hash` stays the original source identity. The
 checkpoint's `target_state_sha256` is the hash of the decoded representation expanded
@@ -72,7 +72,7 @@ reader exposes the quantized integers and scales without performing dequantizati
 With a compatible model already constructed, downstream loading uses the same API:
 
 ```python
-from mlaas_data_generator.checkpoint_store import restore_service_state
+from flaas_data_generator.checkpoint_store import restore_service_state
 
 reload_hash = restore_service_state("outputs/service_artifacts_int8", service_id, model)
 ```

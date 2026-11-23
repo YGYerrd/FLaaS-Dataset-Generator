@@ -7,12 +7,12 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from mlaas_data_generator.clients import recipes, training
-from mlaas_data_generator.clients.partitioning import client_partition
-from mlaas_data_generator.clients.profiles import PROFILES, ROSTER_VERSION
-from mlaas_data_generator.clients.quantities import stratified_sample_quantities
-from mlaas_data_generator.tasks.contracts import bind_task_contract, resolve_task_contract, TaskContractError
-from mlaas_data_generator.provenance import sha256_json
+from flaas_data_generator.clients import recipes, training
+from flaas_data_generator.clients.partitioning import client_partition
+from flaas_data_generator.clients.profiles import PROFILES, ROSTER_VERSION
+from flaas_data_generator.clients.quantities import stratified_sample_quantities
+from flaas_data_generator.tasks.contracts import bind_task_contract, resolve_task_contract, TaskContractError
+from flaas_data_generator.provenance import sha256_json
 
 
 @pytest.mark.parametrize("task,axis,expected", [
@@ -77,8 +77,8 @@ def test_saved_uniform_partition_keeps_source_membership_and_hash_metadata():
 
 
 def fedavg_rows(*, legacy=False):
-    from mlaas_data_generator.fedavg_manifest import expand_fedavg_run
-    from mlaas_data_generator.fedavg_eligibility import fedavg_benchmark_sample_seed
+    from flaas_data_generator.fedavg_manifest import expand_fedavg_run
+    from flaas_data_generator.fedavg_eligibility import fedavg_benchmark_sample_seed
     rows = expand_fedavg_run({"dataset": "digits", "model_type": "mlp", "task_type": "classification",
                              "training_regime": "generic", "sample_size": 500},
         run_index=0, clients_per_run=12, rounds=2, participation_rate=1.0, seed=42,
@@ -100,7 +100,7 @@ def fedavg_rows(*, legacy=False):
 
 @pytest.mark.parametrize("legacy", [False, True])
 def test_fedavg_accepts_current_and_frozen_balanced_rosters(legacy):
-    from mlaas_data_generator.fedavg_run import validate_fedavg_run_entries
+    from flaas_data_generator.fedavg_run import validate_fedavg_run_entries
     rows = fedavg_rows(legacy=legacy)
     before = deepcopy(rows)
     assert validate_fedavg_run_entries([SimpleNamespace(resolved=row) for row in rows]) is None
@@ -121,14 +121,14 @@ def test_fedavg_accepts_current_and_frozen_balanced_rosters(legacy):
 
 
 def test_explicit_generic_variants_only_generate_current_profiles():
-    from mlaas_data_generator.clients.legacy import _generic_split_knobs_for_variant
+    from flaas_data_generator.clients.legacy import _generic_split_knobs_for_variant
     variants = [_generic_split_knobs_for_variant({"task_type": "classification"}, index)
                 for index in range(16)]
     assert all(strategy in PROFILES for strategy, *_ in variants)
 
 
 def test_explicit_fill_mask_variants_use_raw_length_for_dirichlet():
-    from mlaas_data_generator.clients.legacy import _training_knobs_for_variant
+    from flaas_data_generator.clients.legacy import _training_knobs_for_variant
 
     for index in range(12):
         knobs = _training_knobs_for_variant(task_key="fill_mask",

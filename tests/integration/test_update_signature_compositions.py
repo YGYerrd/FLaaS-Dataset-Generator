@@ -3,9 +3,9 @@ import json
 import numpy as np
 import pandas as pd
 
-from mlaas_composition import generate_compositions, load_services_from_db
-from mlaas_data_generator.services.update_signature import compute_and_store_update_signature, compute_update_signature
-from mlaas_data_generator.storage.writer import make_writer
+from flaas_composition import generate_compositions, load_services_from_db
+from flaas_data_generator.services.update_signature import compute_and_store_update_signature, compute_update_signature
+from flaas_data_generator.storage.writer import make_writer
 
 
 def _write_service(writer, service_id, signature):

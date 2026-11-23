@@ -4,8 +4,8 @@ import sys
 import pandas as pd
 import pytest
 
-from mlaas_data_generator.cli import main as cli, run_manifest as manifest
-from mlaas_data_generator.config import CONFIG
+from flaas_data_generator.cli import main as cli, run_manifest as manifest
+from flaas_data_generator.config import CONFIG
 
 
 @pytest.mark.parametrize("module,command", [(cli, ["run-manifest"]), (manifest, [])])
@@ -13,7 +13,7 @@ from mlaas_data_generator.config import CONFIG
 def test_cli_dispatches_scoring_flag(monkeypatch, module, command, disabled):
     received = {}
     monkeypatch.setattr(module, "run_manifest", lambda **kwargs: received.update(kwargs))
-    args = ["mlaas", *command, "--file", "clients.csv"]
+    args = ["flaas", *command, "--file", "clients.csv"]
     if disabled:
         args.append("--no-trust-explainability")
     monkeypatch.setattr(sys, "argv", args)

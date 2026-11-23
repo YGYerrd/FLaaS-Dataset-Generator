@@ -1,6 +1,6 @@
 import numpy as np
 
-from mlaas_data_generator.data.preprocessors import hf_text_token
+from flaas_data_generator.data.preprocessors import hf_text_token
 
 
 class FakeClassLabel:

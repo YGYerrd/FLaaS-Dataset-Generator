@@ -8,8 +8,8 @@ from contextlib import closing
 
 import pytest
 
-from mlaas_composition.cli import main
-from mlaas_composition import manifest
+from flaas_composition.cli import main
+from flaas_composition import manifest
 
 
 def prepare(root, sizes=(12, 13), reverse=False):

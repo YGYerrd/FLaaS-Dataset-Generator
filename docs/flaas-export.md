@@ -6,7 +6,7 @@ service identifier. Repeated executions of a combination are retained. Failed,
 pending and running compositions are excluded, even if some members completed.
 
 ```powershell
-python -m mlaas_composition export-flaas `
+python -m flaas_composition export-flaas `
   --db outputs/compositions.db `
   --source-db outputs/pooled/services.db `
   --output outputs/flaas_flat.csv
